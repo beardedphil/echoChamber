@@ -13,7 +13,8 @@ db.init_app(app)
 @app.route("/")
 def index():
 	user_list = User.query.all()
-	return render_template("index.html", user_list)
+	print(user_list)
+	return render_template("index.html", user_list=user_list)
 
 if __name__ == '__main__':
 	app.run()

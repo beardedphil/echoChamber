@@ -6,8 +6,8 @@
 
 {% block main %}
     <ul>
-        {{ for user in user_list }}
+        {% for user in user_list %}
             <li>{{ user.username }} : {{ user.hash }}</li>
-        {{ endfor }}
+        {% endfor %}
     </ul>
 {% endblock %}
