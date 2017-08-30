@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Users
+{% endblock %}
+
+{% block main %}
+    <ul>
+        {% for user in user_list %}
+            <li>{{ user.username }} : {{ user.hash }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
