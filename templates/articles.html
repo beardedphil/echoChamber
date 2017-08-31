@@ -5,5 +5,17 @@
 {% endblock %}
 
 {% block main %}
-    <h3>Articles</h3>
+    <table>
+        {% for article in articles %}
+            <tr>
+                <td><img src={{ article.logo_link }} width="50" height="50" class="d-inline-block align-top" alt="Logo not available"></td>
+                <td><img src={{ article.image_link }} height="100" class="d-inline-block align-top" alt="Image not available"></td>
+                <td><a href={{ article.url }}>{{ article.title }}</a></td>
+            </tr>
+            <tr>
+                <td colspan=3>{{ article.summary }}</td>
+            </tr>
+        </hr>
+        {% endfor %}
+    </table>
 {% endblock %}
