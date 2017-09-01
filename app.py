@@ -114,8 +114,6 @@ def threaded_get_articles(source, source_id):
 				print("No title")
 			elif not article.url:
 				print("No url")
-			elif not article.publish_date:
-				print("No publish date")
 			else:
 				if not article.summary:
 					article.summary = "Summary not available"
@@ -123,7 +121,7 @@ def threaded_get_articles(source, source_id):
 				if article.top_image:
 					article.image_link = article.top_image
 				elif article.images:
-					article.image_link = article.images[0]
+					article.image_link = article.images.pop()
 				else:
 					article.image_link = default_image_link
 
