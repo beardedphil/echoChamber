@@ -12,3 +12,9 @@
     width: 25%;
     margin: 25px auto !important;
 }
+
+.article {
+    width: 30%;
+    border: 1px black;
+    border-radius: 1;
+}
