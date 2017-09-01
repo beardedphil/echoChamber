@@ -18,13 +18,6 @@ Session(app)
 def index():
 	return render_template("index.html")
 
-@app.route("/users")
-@login_required
-def users():
-	user_list = User.query.all()
-	print(user_list)
-	return render_template("users.html", user_list=user_list)
-
 @app.route("/articles")
 @login_required
 def articles():
