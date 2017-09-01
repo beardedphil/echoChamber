@@ -2,8 +2,6 @@
 from helpers import *
 from models import *
 
-app = Flask(__name__)
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///echo.db'
 app.config['SQLALCHEMY_ECHO'] = True
@@ -30,10 +28,17 @@ def users():
 @app.route("/articles")
 @login_required
 def articles():
-	thread = threading.Thread(target=threaded_get_articles)
-	thread.start()
+	sources = UserSource.query.filter_by(user_id = session["user_id"]).all()
+	source_ids = []
 
-	return render_template("articles.html", articles=Article.query.all())
+	for source in sources:
+		source_info = Source.query.filter_by(id = source.id).first()
+		source_ids.append(source_info.id)
+		thread = threading.Thread(target=threaded_get_articles, args=(source_info.source, source_info.id))
+		thread.start()
+
+	articles = Article.query.filter(Article.source_id.in_(source_ids))
+	return render_template("articles.html", articles=articles)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -92,6 +97,42 @@ def login():
 
 	# else if user reached route via GET (as by clicking a link or via redirect)
 	return render_template("login.html")
+
+def threaded_get_articles(source, source_id):
+	with app.app_context():
+		default_image_link = '/static/images/temp_rous.jpg'
+		paper = newspaper.build('http://' + source, memoize_articles=False)
+		for article in paper.articles:
+			try:
+				article.download()
+				article.parse()
+				article.nlp()
+			except:
+				continue
+
+			if not article.title or article.title == "None":
+				print("No title")
+			elif not article.url:
+				print("No url")
+			elif not article.publish_date:
+				print("No publish date")
+			else:
+				if not article.summary:
+					article.summary = "Summary not available"
+
+				if article.top_image:
+					article.image_link = article.top_image
+				elif article.images:
+					article.image_link = article.images[0]
+				else:
+					article.image_link = default_image_link
+
+				article.logo_link = "//logo.clearbit.com/" + source
+
+				new_article = Article(article.title, article.url, article.summary, article.image_link, article.logo_link, article.publish_date, source_id)
+
+				db.session.add(new_article)
+				db.session.commit()
 
 
 if __name__ == '__main__':

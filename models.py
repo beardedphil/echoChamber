@@ -22,11 +22,49 @@ class Article(db.Model):
     image_link = db.Column(db.Text, nullable=False)
     logo_link = db.Column(db.Text, nullable=False)
     publish_date = db.Column(db.DateTime, nullable=False)
+    source_id = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, title, url, summary, image_link, logo_link, publish_date):
+    def __init__(self, title, url, summary, image_link, logo_link, publish_date, source_id):
         self.title = title
         self.url = url
         self.summary = summary
         self.image_link = image_link
         self.logo_link = logo_link
         self.publish_date = publish_date
+        self.source_id = source_id
+
+class Source(db.Model):
+    __tablename__ = 'sources'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    source = db.Column(db.Text, nullable=False)
+
+    def __init__(self, source):
+        self.source = source
+
+class Keyword(db.Model):
+    __tablename__ = 'keywords'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    keyword = db.Column(db.Text, nullable=False)
+
+    def __init__(self, keyword):
+        self.keyword = keyword
+
+class ArticleKeyword(db.Model):
+    __tablename__ = 'article_keyword'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    article_id = db.Column(db.Integer, nullable=False)
+    keyword_id = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, keyword):
+        self.article_id = article_id
+        self.keyword_id = keyword_id
+
+class UserSource(db.Model):
+    __tablename__ = 'user_sources'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    source_id = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, keyword):
+        self.user_id = user_id
+        self.source_id = source_id
