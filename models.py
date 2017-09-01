@@ -18,32 +18,15 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     title = db.Column(db.Text, nullable=False)
     url = db.Column(db.Text, nullable=False)
-    text = db.Column(db.Text, nullable=False)
-    image_link = db.Column(db.Text, nullable=True)
-    logo_link = db.Column(db.Text, nullable=True)
-    summary = db.Column(db.Text, nullable=True)
+    summary = db.Column(db.Text, nullable=False)
+    image_link = db.Column(db.Text, nullable=False)
+    logo_link = db.Column(db.Text, nullable=False)
+    publish_date = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, title, url, text):
+    def __init__(self, title, url, summary, image_link, logo_link, publish_date):
         self.title = title
         self.url = url
-        self.text = text
-
-class Author(db.Model):
-    __tablename__ = 'authors'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    article_id = db.Column(db.Integer, nullable=False)
-    author = db.Column(db.Text, nullable=False)
-
-    def __init__(self, article_id, author):
-        self.article_id = article_id
-        self.author = author
-
-class Image(db.Model):
-    __tablename__ = 'images'
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    article_id = db.Column(db.Integer, nullable=False)
-    image_link = db.Column(db.Text, nullable=False)
-
-    def __init__(self, article_id, image_link):
-        self.article_id = article_id
-        self.image = image
+        self.summary = summary
+        self.image_link = image_link
+        self.logo_link = logo_link
+        self.publish_date = publish_date

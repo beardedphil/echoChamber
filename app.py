@@ -40,6 +40,7 @@ def login():
 
 def threaded_get_articles():
 	with app.app_context():
+		default_image_link = '/static/images/temp_rous.jpg'
 		site = "cnn.com"
 		cnn_paper = newspaper.build('http://' + site, memoize_articles=False)
 		for article in cnn_paper.articles:
@@ -54,33 +55,24 @@ def threaded_get_articles():
 				print("No title")
 			elif not article.url:
 				print("No url")
-			elif not article.text or article.text == "None" or article.text == "":
-				print("No text")
+			elif not article.publish_date:
+				print("No publish date")
 			else:
-				new_article = Article(article.title, article.url, article.text)
+				if not article.summary:
+					article.summary = "Summary not available"
 
 				if article.top_image:
-					new_article.image_link = article.top_image
+					article.image_link = article.top_image
 				elif article.images:
-					new_article.image_link = article.images[0]
+					article.image_link = article.images[0]
 				else:
-					new_article.image_link = NULL
+					article.image_link = default_image_link
 
-				if article.summary:
-					new_article.summary = article.summary
-				else:
-					new_article.summary = "Summary not available"
+				article.logo_link = "//logo.clearbit.com/" + site
 
-				logo_link = "//logo.clearbit.com/" + site
-				new_article.logo_link = logo_link
+				new_article = Article(article.title, article.url, article.summary, article.image_link, article.logo_link, article.publish_date)
 
 				db.session.add(new_article)
-				db.session.commit()
-
-				for author in article.authors:
-					new_author = Author(new_article.id, author)
-					db.session.add(new_author)
-
 				db.session.commit()
 
 if __name__ == '__main__':
