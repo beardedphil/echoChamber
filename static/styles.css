@@ -3,6 +3,11 @@ h3 {
     margin-bottom: 1em;
 }
 
+#register {
+    width: 25%;
+    margin: 0px auto;
+}
+
 .article {
     position: relative;
     border: 1px solid black;
