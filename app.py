@@ -14,12 +14,12 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 @app.route("/")
-@login_required
+# @login_required
 def index():
 	return render_template("index.html")
 
 @app.route("/articles")
-@login_required
+# @login_required
 def articles():
 	sources = UserSource.query.filter_by(user_id = session["user_id"]).all()
 	source_ids = []
