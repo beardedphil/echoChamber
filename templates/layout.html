@@ -14,6 +14,13 @@
         <link rel="stylesheet" href="/static/styles.css">
         <title>Echo Chamber: {% block title %}{% endblock %}</title>
 
+        <!-- Optional JavaScript (per Bootstrap introduction) -->
+        <!-- jQuery first, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+        {% block script %}{% endblock %}
+
     </head>
 
     <body>
@@ -30,19 +37,17 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item active">
-                            <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link disabled" href="{{ url_for('articles') }}">Articles</a>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#sourcesModal">
+                                Who do you trust?
+                            </button>
                         </li>
                     </ul>
 
                     <ul class="navbar-nav navbar-right">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#loginModal">
+                                Login
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -56,14 +61,6 @@
             </main>
 
         </div>
-
-        <!-- Optional JavaScript (per Bootstrap introduction) -->
-        <!-- jQuery first, then Bootstrap JS -->
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
-
-
     </body>
 
 </html>

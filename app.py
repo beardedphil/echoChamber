@@ -14,24 +14,25 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 @app.route("/")
-@login_required
 def index():
-	return render_template("index.html")
+	try:
+		user_id = session["user_id"]
+		sources = UserSource.query.filter_by(user_id = user_id).all()
+		source_ids = []
 
-@app.route("/articles")
-@login_required
-def articles():
-	sources = UserSource.query.filter_by(user_id = session["user_id"]).all()
-	source_ids = []
+		for source in sources:
+			source_info = Source.query.filter_by(id = source.source_id).first()
+			source_ids.append(source_info.id)
+			thread = threading.Thread(target=threaded_get_articles, args=(source_info.source, source_info.id))
+			# thread.start()
 
-	for source in sources:
-		source_info = Source.query.filter_by(id = source.source_id).first()
-		source_ids.append(source_info.id)
-		thread = threading.Thread(target=threaded_get_articles, args=(source_info.source, source_info.id))
-		# thread.start()
+		articles = Article.query.filter(Article.source_id.in_(source_ids))
+	except:
+		# Should eventually be getTopStories()
+		articles = Article.query.all()
 
-	articles = Article.query.filter(Article.source_id.in_(source_ids))
-	return render_template("articles.html", articles=articles)
+	return render_template("index.html", articles=articles)
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -66,7 +67,6 @@ def login():
 	session.clear()
 
 	if request.method == "POST":
-
 		# ensure username was submitted
 		if not request.form.get("username"):
 			return render_template("login.html", error_message="must provide username")
@@ -87,10 +87,7 @@ def login():
 
 		# redirect user to home page
 		return redirect(url_for("index"))
-
-	# else if user reached route via GET (as by clicking a link or via redirect)
-	else:
-		return render_template("login.html")
+	return render_template("login.html")
 
 def threaded_get_articles(source, source_id):
 	with app.app_context():

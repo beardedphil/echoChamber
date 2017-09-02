@@ -5,5 +5,89 @@
 {% endblock %}
 
 {% block main %}
-    <h3>Welcome to Echo Chamber!</h3>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h3>Top Stories</h3>
+            </div>
+            <div class="col-md-4">
+                <h3>Trending</h3>
+            </div>
+        </div>
+        {% for article in articles %}
+            {% if loop.index % 2 == 1 %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href={{ article.url }} class="title" target="_blank">
+                            <div class="article">
+                                <img class="logo" src={{ article.logo_link }}>
+                                <img class="article-image" src={{ article.image_link }} width="100%">
+                                <div class="title-background">
+                                    <p>{{ article.title }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+            {% else %}
+                    <div class="col-md-4">
+                        <a href={{ article.url }} class="title" target="_blank">
+                            <div class="article">
+                                <img class="logo" src={{ article.logo_link }}>
+                                <img class="article-image" src={{ article.image_link }} width="100%">
+                                <div class="title-background">
+                                    <p>{{ article.title }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <div class="col-md-4 temporary-border">
+            <p>Twitter feed?</p>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        {% if error_message %}
+                            <div class="container">
+                                <p>{{ error_message }}</p>
+                            </div>
+                        {% endif %}
+                        <div class="text-center">
+                            <form action="{{ url_for('login') }}" method="post">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <input class="form-control" name="password" placeholder="Password" type="password"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-primary" type="submit">Login</button>
+                                        <a class="btn btn-secondary" href="{{ url_for('index') }}" role="button">Cancel</a>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="{{ url_for('register') }}">New user? Register here!</a>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
