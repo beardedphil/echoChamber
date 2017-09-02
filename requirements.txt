@@ -6,4 +6,3 @@ gunicorn
 newspaper3k
 flask_session
 passlib
-functools
