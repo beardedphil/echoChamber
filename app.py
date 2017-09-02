@@ -21,7 +21,7 @@ def index():
 @app.route("/articles")
 @login_required
 def articles():
-	sources = UserSource.query.filter_by(user_id = session["user_id"]).all()
+	sources = UserSource.query.filter_by(user_id = g.user_id).all()
 	source_ids = []
 
 	for source in sources:
@@ -83,8 +83,8 @@ def login():
 			return render_template("login.html", error_message="invalid username and/or password")
 
 		# remember which user has logged in
-		session["user_id"] = user.id
-		print("User id: {}".format(session["user_id"]))
+		g.user_id = user.id
+		print("User id: {}".format(g.user_id))
 
 		# redirect user to home page
 		return redirect(url_for("index"))
