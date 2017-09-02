@@ -27,9 +27,9 @@ def login_required(f):
 	http://flask.pocoo.org/docs/0.11/patterns/viewdecorators/
 	"""
 
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if g.user is None:
-            return redirect(url_for('login', next=request.url))
-        return f(*args, **kwargs)
-    return decorated_function
+	@wraps(f)
+	def decorated_function(*args, **kwargs):
+		if g.user is None:
+			return redirect(url_for('login', next=request.url))
+		return f(*args, **kwargs)
+	return decorated_function
