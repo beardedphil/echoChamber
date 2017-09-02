@@ -25,10 +25,10 @@ def articles():
 	source_ids = []
 
 	for source in sources:
-		source_info = Source.query.filter_by(id = source.id).first()
+		source_info = Source.query.filter_by(id = source.source_id).first()
 		source_ids.append(source_info.id)
 		thread = threading.Thread(target=threaded_get_articles, args=(source_info.source, source_info.id))
-		thread.start()
+		# thread.start()
 
 	articles = Article.query.filter(Article.source_id.in_(source_ids))
 	return render_template("articles.html", articles=articles)
