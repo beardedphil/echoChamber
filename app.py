@@ -14,12 +14,12 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 @app.route("/")
-# @login_required
+@login_required
 def index():
 	return render_template("index.html")
 
 @app.route("/articles")
-# @login_required
+@login_required
 def articles():
 	sources = UserSource.query.filter_by(user_id = session["user_id"]).all()
 	source_ids = []
@@ -84,9 +84,9 @@ def login():
 
 		# remember which user has logged in
 		session["user_id"] = user.id
+		print("User id: {}".format(session["user_id"]))
 
 		# redirect user to home page
-		print("Got here")
 		return redirect(url_for("index"))
 
 	# else if user reached route via GET (as by clicking a link or via redirect)
