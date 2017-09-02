@@ -12,7 +12,6 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-g.user_id = None
 
 @app.route("/")
 @login_required
@@ -22,7 +21,7 @@ def index():
 @app.route("/articles")
 @login_required
 def articles():
-	sources = UserSource.query.filter_by(user_id = g.user_id).all()
+	sources = UserSource.query.filter_by(user_id = session["user_id"]).all()
 	source_ids = []
 
 	for source in sources:
@@ -64,7 +63,7 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-	g.user_id = None
+	session.clear()
 
 	if request.method == "POST":
 
@@ -84,8 +83,7 @@ def login():
 			return render_template("login.html", error_message="invalid username and/or password")
 
 		# remember which user has logged in
-		g.user_id = user.id
-		print("User id: {}".format(g.user_id))
+		session["user_id"] = user.id
 
 		# redirect user to home page
 		return redirect(url_for("index"))
