@@ -20,6 +20,6 @@ def login_required(f):
 	@wraps(f)
 	def decorated_function(*args, **kwargs):
 		if session.get("user_id") is None:
-			return render_template("login.html")
+			return redirect(url_for("login"))
 		return f(*args, **kwargs)
 	return decorated_function
