@@ -86,10 +86,11 @@ def login():
 		session["user_id"] = user.id
 
 		# redirect user to home page
+		print("Got here")
 		return redirect(url_for("index"))
 
 	# else if user reached route via GET (as by clicking a link or via redirect)
-	else: 
+	else:
 		return render_template("login.html")
 
 def threaded_get_articles(source, source_id):
