@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, session, redirect
+from flask import Flask, render_template, url_for, request, session, redirect, g
 from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from tempfile import mkdtemp
@@ -11,15 +11,25 @@ import urllib.request
 
 app = Flask(__name__)
 
+# def login_required(f):
+#
+# 	@wraps(f)
+# 	def decorated_function(*args, **kwargs):
+# 		if session.get("user_id") is None:
+# 			return redirect(url_for("login"))
+# 		return f(*args, **kwargs)
+# 	return decorated_function
+
 def login_required(f):
 	"""
 	Decorate routes to require login.
 
 	http://flask.pocoo.org/docs/0.11/patterns/viewdecorators/
 	"""
-	@wraps(f)
-	def decorated_function(*args, **kwargs):
-		if session.get("user_id") is None:
-			return redirect(url_for("login"))
-		return f(*args, **kwargs)
-	return decorated_function
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.user is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
