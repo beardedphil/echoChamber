@@ -89,6 +89,7 @@ def login():
 		return redirect(url_for("index"))
 
 	# else if user reached route via GET (as by clicking a link or via redirect)
+	print("This is happening")
 	return render_template("login.html")
 
 def threaded_get_articles(source, source_id):
