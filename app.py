@@ -12,6 +12,7 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+g.user_id = None
 
 @app.route("/")
 @login_required
@@ -63,7 +64,7 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-	session.clear()
+	g.user_id = None
 
 	if request.method == "POST":
 
