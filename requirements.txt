@@ -5,3 +5,4 @@ SQLAlchemy==1.1.13
 gunicorn
 newspaper3k
 flask_session
+passlib
