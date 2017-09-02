@@ -19,7 +19,7 @@ def login_required(f):
 	"""
 	@wraps(f)
 	def decorated_function(*args, **kwargs):
-		if g.user_id is None:
+		if not g.user_id:
 			return redirect(url_for("login"))
 		return f(*args, **kwargs)
 	return decorated_function
