@@ -48,3 +48,15 @@ h3 {
     width: 2.5em;
     z-index: 3;
 }
+
+.source-selection-container {
+    border: 1px solid black;
+    margin: .5em;
+    width: 90%;
+    padding: .5em;
+}
+
+.source-selection-link {
+    width: 100%;
+    border: 1px solid black;
+}

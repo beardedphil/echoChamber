@@ -18,6 +18,8 @@ def index():
 	try:
 		user_id = session["user_id"]
 		sources = UserSource.query.filter_by(user_id = user_id).all()
+		all_sources_info = Source.query.all()
+		all_logo_links = []
 		source_ids = []
 
 		for source in sources:
@@ -26,12 +28,19 @@ def index():
 			thread = threading.Thread(target=threaded_get_articles, args=(source_info.source, source_info.id))
 			# thread.start()
 
+		for source in all_sources_info:
+			all_logo_links.append("//logo.clearbit.com/" + source.source)
+
 		articles = Article.query.filter(Article.source_id.in_(source_ids))
+		print(all_logo_links)
+
 	except:
 		# Should eventually be getTopStories()
 		articles = Article.query.all()
+		all_logo_links = []
 
-	return render_template("index.html", articles=articles)
+
+	return render_template("index.html", articles=articles, logo_links=all_logo_links)
 
 
 @app.route("/register", methods=["GET", "POST"])
