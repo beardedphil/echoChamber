@@ -1,9 +1,4 @@
-export const sampleArticle = {
-    logo_link: "//logo.clearbit.com/slate.com",
-    image_link: "http://www.slate.com/content/dam/slate/articles/news_and_politics/politics/2017/08/170831_POL_Trump-BadPolls.jpg.CROP.promo-large.jpg",
-    title: "The Evidence Has Never Been Clearer: White Resentment Defines the GOP",
-    url: "http://www.slate.com/articles/news_and_politics/politics/2017/09/trump_s_support_comes_from_white_resentment.html"
-}
+import $ from 'jquery';
 
 export function isLoggedIn() {
 	return true;
@@ -28,11 +23,15 @@ export function getSources() {
 }
 
 export function getArticles() {
-    let articles = [];
+    var result = [];
+    $.ajaxSetup( { "async": false } );
+    $.getJSON('http://localhost:8000', function(data) {
+        for(var i = 0, len = data.length; i < len; i++) {
+            result.push(data[i]);
+        }
+        $.ajaxSetup( { "async": true } );
+    });
 
-    for (var i = 0; i < 20; i++) {
-        articles.push(sampleArticle);
-    }
-
-    return articles;
+    console.log(result);
+    return result;
 }

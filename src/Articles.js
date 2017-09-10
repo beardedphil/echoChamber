@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 
-import { sampleArticle } from './utils/helpers.js'
-
 const logoStyles = {
     position: "absolute",
     top: ".5em",
@@ -49,6 +47,7 @@ export class Articles extends Component {
         let row = [];
         let rowLength = 2;
         let rows = [];
+        console.log(this.props.articles);
         let numArticles = this.props.articles.length;
 
         for (var i = 0, rowCount = 0; i < numArticles; rowCount++) {
@@ -81,12 +80,12 @@ class Article extends Component {
     render() {
         return (
             <div className="col-md-4">
-                <a href={ sampleArticle.url } style={ titleStyles } target="_blank">
+                <a href={ this.props.source.url } style={ titleStyles } target="_blank">
                     <div style={ articleStyles }>
-                        <img style={ logoStyles } src={ sampleArticle.logo_link } alt="Not found" />
-                        <img style={ articleImageStyles } src={ sampleArticle.image_link } alt="Not found" />
+                        <img style={ logoStyles } src={ this.props.source.logo_link } alt="Not found" />
+                        <img style={ articleImageStyles } src={ this.props.source.image_link } alt="Not found" />
                         <div style={ titleBackgroundStyles }>
-                            <p>{ sampleArticle.title }</p>
+                            <p>{ this.props.source.title }</p>
                         </div>
                     </div>
                 </a>
