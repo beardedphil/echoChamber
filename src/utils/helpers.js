@@ -5,27 +5,23 @@ export function isLoggedIn() {
 }
 
 export function getSources() {
-    let sourceLinks = [
-        "//logo.clearbit.com/cnn.com",
-        "//logo.clearbit.com/msnbc.com",
-        "//logo.clearbit.com/latimes.com",
-        "//logo.clearbit.com/washingtonpost.com",
-        "//logo.clearbit.com/newyorktimes.com",
-        "//logo.clearbit.com/wsj.com",
-        "//logo.clearbit.com/breitbart.com",
-        "//logo.clearbit.com/nbcnews.com",
-        "//logo.clearbit.com/news.bbc.co.uk",
-        "//logo.clearbit.com/foxnews.com",
-        "//logo.clearbit.com/slate.com",
-    ];
+    var result = [];
+	$.ajaxSetup( { "async": false } );
+	$.getJSON('http://localhost:8000/sources', function(data) {
+		for(var i = 0, len = data.length; i < len; i++) {
+			result.push(data[i]);
+		}
+		$.ajaxSetup( { "async": true} );
+	});
 
-    return sourceLinks;
+	console.log(result);
+    return result;
 }
 
 export function getArticles() {
     var result = [];
     $.ajaxSetup( { "async": false } );
-    $.getJSON('http://localhost:8000', function(data) {
+    $.getJSON('http://localhost:8000/articles', function(data) {
         for(var i = 0, len = data.length; i < len; i++) {
             result.push(data[i]);
         }

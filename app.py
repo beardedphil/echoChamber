@@ -14,13 +14,11 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-@app.route("/")
-def index():
+@app.route("/articles")
+def articles():
 	try:
 		user_id = session["user_id"]
 		sources = UserSource.query.filter_by(user_id = user_id).all()
-		all_sources_info = Source.query.all()
-		all_logo_links = []
 		source_ids = []
 
 		for source in sources:
@@ -28,9 +26,6 @@ def index():
 			source_ids.append(source_info.id)
 			thread = threading.Thread(target=threaded_get_articles, args=(source_info.source, source_info.id))
 			# thread.start()
-
-		for source in all_sources_info:
-			all_logo_links.append("//logo.clearbit.com/" + source.source)
 
 		articles = Article.query.filter(Article.source_id.in_(source_ids))
 
@@ -53,9 +48,18 @@ def index():
 	response.headers.add('Access-Control-Allow-Origin', '*')
 	return response
 
-# 	return render_template("index.html", articles=articles, logo_links=all_logo_links)
-#
-#
+@app.route("/sources", methods=["GET"])
+def sources():
+	all_sources_info = Source.query.all()
+	all_logo_links = []
+
+	for source in all_sources_info:
+		all_logo_links.append("//logo.clearbit.com/" + source.source)
+
+	response = jsonify(all_logo_links)
+	response.headers.add('Access-Control-Allow-Origin', '*')
+	return response
+
 # @app.route("/register", methods=["GET", "POST"])
 # def register():
 #     # if user reached route via POST (as by submitting a form via POST)
