@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from helpers import *
 from models import *
-from flask import jsonify, Response
+
+app = Flask(__name__)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///echo.db'
@@ -15,6 +16,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 @app.route("/articles")
+@crossdomain(origin='*')
 def articles():
 	try:
 		user_id = session["user_id"]
@@ -44,11 +46,10 @@ def articles():
 		articleDict.pop('source_id')
 		articlesDict.append(articleDict)
 
-	response = jsonify(articlesDict)
-	response.headers.add('Access-Control-Allow-Origin', '*')
-	return response
+	return jsonify(articlesDict)
 
 @app.route("/sources", methods=["GET"])
+@crossdomain(origin='*')
 def sources():
 	all_sources_info = Source.query.all()
 	all_logo_links = []
@@ -56,9 +57,7 @@ def sources():
 	for source in all_sources_info:
 		all_logo_links.append("//logo.clearbit.com/" + source.source)
 
-	response = jsonify(all_logo_links)
-	response.headers.add('Access-Control-Allow-Origin', '*')
-	return response
+	return jsonify(all_logo_links)
 
 # @app.route("/register", methods=["GET", "POST"])
 # def register():
@@ -88,67 +87,71 @@ def sources():
 #     # else if user reached route via GET (as by clicking a link or via redirect)
 # 	return render_template("register.html")
 #
-# @app.route("/login", methods=["GET", "POST"])
-# def login():
-# 	session.clear()
-#
-# 	if request.method == "POST":
-# 		# ensure username was submitted
-# 		if not request.form.get("username"):
-# 			return render_template("login.html", error_message="must provide username")
-#
-# 		# ensure password was submitted
-# 		if not request.form.get("password"):
-# 			return render_template("login.html", error_message="must provide password")
-#
-# 		# query database for username
-# 		user = User.query.filter_by(username=request.form.get("username")).first()
-#
-# 		# ensure username exists and password is correct
-# 		if user == None or not pwd_context.verify(request.form.get("password"), user.hash):
-# 			return render_template("login.html", error_message="invalid username and/or password")
-#
-# 		# remember which user has logged in
-# 		session["user_id"] = user.id
-#
-# 		# redirect user to home page
-# 		return redirect(url_for("index"))
-# 	return render_template("login.html")
-#
-# def threaded_get_articles(source, source_id):
-# 	with app.app_context():
-# 		default_image_link = '/static/images/temp_rous.jpg'
-# 		paper = newspaper.build('http://' + source, memoize_articles=False)
-# 		for article in paper.articles:
-# 			try:
-# 				article.download()
-# 				article.parse()
-# 				article.nlp()
-# 			except:
-# 				continue
-#
-# 			if not article.title or article.title == "None":
-# 				print("No title")
-# 			elif not article.url:
-# 				print("No url")
-# 			else:
-# 				if not article.summary:
-# 					article.summary = "Summary not available"
-#
-# 				if article.top_image:
-# 					article.image_link = article.top_image
-# 				elif article.images:
-# 					article.image_link = article.images.pop()
-# 				else:
-# 					article.image_link = default_image_link
-#
-# 				article.logo_link = "//logo.clearbit.com/" + source
-#
-# 				new_article = Article(article.title, article.url, article.summary, article.image_link, article.logo_link, article.publish_date, source_id)
-#
-# 				db.session.add(new_article)
-# 				db.session.commit()
+@app.route("/login", methods=["POST"])
+@crossdomain(origin='*')
+def login():
+	session.clear()
+	response = {'auth': False, 'error':'', 'user_id':''}
 
+	# print(request.form.get('username'))
+	# print(request.form.get('password'))
+
+	# ensure username was submitted
+	if not request.form.get('username'):
+		response['error'] = 'Please provide a username'
+		return jsonify(response);
+
+	# ensure password was submitted
+	if not request.form.get('password'):
+		response['error'] = 'Please provide a password'
+		return jsonify(response);
+
+	# query database for username
+	user = User.query.filter_by(username=request.form.get("username")).first()
+
+	# ensure username exists and password is correct
+	if user == None or not pwd_context.verify(request.form.get("password"), user.hash):
+		response['error'] = 'Invalid username and/or password'
+	else:
+		response['auth'] = True
+		response['user_id'] = user.id
+
+	return jsonify(response);
+
+
+def threaded_get_articles(source, source_id):
+	with app.app_context():
+		default_image_link = '/src/assets/temp_rous.jpg'
+		paper = newspaper.build('http://' + source, memoize_articles=False)
+		for article in paper.articles:
+			try:
+				article.download()
+				article.parse()
+				article.nlp()
+			except:
+				continue
+
+			if not article.title or article.title == "None":
+				print("No title")
+			elif not article.url:
+				print("No url")
+			else:
+				if not article.summary:
+					article.summary = "Summary not available"
+
+				if article.top_image:
+					article.image_link = article.top_image
+				elif article.images:
+					article.image_link = article.images.pop()
+				else:
+					article.image_link = default_image_link
+
+				article.logo_link = "//logo.clearbit.com/" + source
+
+				new_article = Article(article.title, article.url, article.summary, article.image_link, article.logo_link, article.publish_date, source_id)
+
+				db.session.add(new_article)
+				db.session.commit()
 
 if __name__ == '__main__':
 	app.run()

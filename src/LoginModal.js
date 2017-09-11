@@ -10,24 +10,71 @@ import {
     Input
 } from 'reactstrap';
 
+import { attemptLogin } from './utils/helpers.js'
+
 const loginButtonStyles = {
 	marginRight: '1em'
+}
+
+export class ErrorDiv extends Component {
+    render() {
+        return(
+            <div id="error">
+                <p>{this.props.message}</p>
+            </div>
+        );
+    }
+
 }
 
 export class LoginModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            modal: false
+            modal: false,
+            username: "",
+            password: "",
+            auth: false,
+            error: "",
+            user_id: ""
         };
 
         this.toggle = this.toggle.bind(this);
+        this.handleUsernameChange = this.handleUsernameChange.bind(this);
+        this.handlePasswordChange = this.handlePasswordChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     toggle() {
         this.setState({
+            username: "",
+            password: "",
+            error: "",
             modal: !this.state.modal
         });
+    }
+
+    handleUsernameChange(e) {
+       this.setState({username: e.target.value});
+    }
+
+    handlePasswordChange(e) {
+       this.setState({password: e.target.value});
+    }
+
+    handleSubmit(e) {
+        e.preventDefault();
+        let result = attemptLogin(this.state.username, this.state.password);
+
+        if(result.auth) {
+            this.setState({auth: true, user_id: result.user_id});
+            this.props.handleLogin(this.state.auth, this.state.user_id)
+            this.toggle();
+        } else {
+            this.setState({error: result.error})
+            this.setState({username: "", password: ""});
+        }
+
     }
 
     showModal() {
@@ -43,18 +90,20 @@ export class LoginModal extends Component {
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>Login</ModalHeader>
                     <ModalBody className="text-center">
-                        <div id="error">
-                            <p>{this.props.error}</p>
-                        </div>
-                        <Form action="/login" method="post">
+                        { this.state.error ? (
+                            <ErrorDiv message={this.state.error}/>
+                        ) : (
+                            <ErrorDiv message={this.props.error}/>
+                        )}
+                        <Form onSubmit={this.handleSubmit}>
                             <FormGroup>
-                                <Input name="username" placeholder="Username" autoComplete="off" autoFocus/>
+                                <Input name="username" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} autoComplete="off" autoFocus/>
                             </FormGroup>
                             <FormGroup>
-                                <Input name="password" placeholder="Password" type="password" />
+                                <Input name="password" placeholder="Password" type="password" value={this.state.password} onChange={this.handlePasswordChange}/>
                             </FormGroup>
                             <FormGroup>
-                                <Button color="primary" onClick={this.toggle}>Login</Button>{' '}
+                                <Button color="primary" type="submit">Login</Button>{' '}
                                 <Button color="secondary" onClick={this.toggle}>Cancel</Button>
                             </FormGroup>
                         </Form>

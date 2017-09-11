@@ -6,16 +6,31 @@ import {
 	Nav,
 	Input,
 	InputGroup,
-	InputGroupAddon
+	InputGroupAddon,
+	Button
 } from 'reactstrap';
 
 import { LoginModal } from './LoginModal.js';
 import { SourcesModal } from './SourcesModal.js'
 import { Logo } from './Logo.js';
-import { isLoggedIn } from './utils/helpers.js'
 
 const navStyles = {
+	float: 'none',
 	paddingBottom: '1.2em'
+}
+
+const searchNavStyles = {
+	width: '100%',
+}
+
+const searchBarStyles = {
+	float: 'none',
+	margin: '0 auto',
+	width: '30%'
+}
+
+const loginToggleStyles = {
+	marginRight: '1em'
 }
 
 export class Navigation extends Component {
@@ -49,13 +64,26 @@ export class Navigation extends Component {
 				<div>
 					<Navbar color="faded" light toggleable style={navStyles}>
 						<Nav>
-							{ !isLoggedIn() ? (
-								<LoginModal buttonLabel="Login"/>
-							) : ('')}
-							<SourcesModal buttonLabel="Who do you trust?"/>
+							{ this.props.isLoggedIn ? (
+								<SourcesModal buttonLabel="Who do you trust?" />
+							) : (
+								<LoginModal buttonLabel="Who do you trust?" title="Login" error="Please login to access this area." handleLogin={ this.props.handleLogin } />
+							)}
+
 						</Nav>
 						<Nav className="ml-auto">
-							<InputGroup>
+							{ this.props.isLoggedIn ? (
+								<Button onClick={ this.props.handleLogout } color="primary" style={ loginToggleStyles }>Logout</Button>
+							) : (
+								<LoginModal buttonLabel="Login" handleLogin={ this.props.handleLogin } style={ loginToggleStyles }/>
+							)}
+						</Nav>
+					</Navbar>
+				</div>
+				<div>
+					<Navbar color="faded" light toggleable>
+						<Nav style={searchNavStyles}>
+							<InputGroup style={searchBarStyles}>
 								<Input />
 								<InputGroupAddon>Search</InputGroupAddon>
 							</InputGroup>

@@ -1,7 +1,7 @@
 import $ from 'jquery';
 
 export function isLoggedIn() {
-	return true;
+	return false;
 }
 
 export function getSources() {
@@ -14,7 +14,6 @@ export function getSources() {
 		$.ajaxSetup( { "async": true} );
 	});
 
-	console.log(result);
     return result;
 }
 
@@ -28,6 +27,25 @@ export function getArticles() {
         $.ajaxSetup( { "async": true } );
     });
 
-    console.log(result);
     return result;
+}
+
+export function attemptLogin(username, password) {
+	let result = []
+	$.ajaxSetup( { "async": false } );
+	$.ajax(
+	{
+	    type: 'POST',
+	    url: 'http://localhost:8000/login',
+	    data: {
+			username: username,
+			password: password
+		},
+	    success: function(data)
+	    {
+			result = data;
+	    }
+	});
+	$.ajaxSetup( { "async": true } );
+	return result
 }

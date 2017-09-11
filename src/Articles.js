@@ -47,7 +47,6 @@ export class Articles extends Component {
         let row = [];
         let rowLength = 2;
         let rows = [];
-        console.log(this.props.articles);
         let numArticles = this.props.articles.length;
 
         for (var i = 0, rowCount = 0; i < numArticles; rowCount++) {
