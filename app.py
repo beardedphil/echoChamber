@@ -18,12 +18,12 @@ Session(app)
 @app.route("/articles", methods=["POST"])
 @crossdomain(origin='*')
 def articles():
-	user_id = request.form.get('user_id') or 29
-	print(user_id)
+	print(request.form.get('user_id'))
+
 	try:
 		if not request.form.get('user_id') or request.form.get('user_id') == '':
 			user_id = null
-		sources = UserSource.query.filter_by(user_id = user_id).all()
+		sources = UserSource.query.filter_by(user_id = request.form.get('user_id')).all()
 		source_ids = []
 
 		for source in sources:
@@ -90,6 +90,46 @@ def login():
 
 	return jsonify(response);
 
+@app.route("/register", methods=["POST"])
+@crossdomain(origin='*')
+def register():
+	session.clear()
+	response = {'success': False, 'error':''}
+
+	# ensure username was submitted
+	if not request.form.get('username'):
+		response['error'] = 'Please provide a username'
+		return jsonify(response);
+
+	# ensure password was submitted
+	if not request.form.get('password'):
+		response['error'] = 'Please provide a password'
+		return jsonify(response);
+
+	# ensure password confirmation was submitted
+	if not request.form.get('password2'):
+		response['error'] = 'Please confirm your password'
+		return jsonify(response);
+
+	# ensure password and confirmation match
+	if not request.form.get('password') == request.form.get('password2'):
+		response['error'] = 'Password and confirmation do not match.  Please try again.'
+		return jsonify(response);
+
+	# query database for username
+	user = User.query.filter_by(username=request.form.get("username")).first()
+
+	# ensure username does not exist
+	if user != None:
+		response['error'] = 'Sorry, that username is taken.'
+	else:
+		user = User(request.form.get("username"), pwd_context.hash(request.form.get("password")))
+		db.session.add(user)
+		db.session.commit()
+		response['success'] = True
+
+	print(response)
+	return jsonify(response);
 
 def threaded_get_articles(source, source_id):
 	with app.app_context():

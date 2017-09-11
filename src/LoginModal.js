@@ -10,7 +10,8 @@ import {
     Input
 } from 'reactstrap';
 
-import { attemptLogin } from './utils/helpers.js'
+import { attemptLogin } from './utils/helpers.js';
+import { RegistrationModal } from './RegistrationModal.js';
 
 const loginButtonStyles = {
 	marginRight: '1em'
@@ -24,7 +25,6 @@ export class ErrorDiv extends Component {
             </div>
         );
     }
-
 }
 
 export class LoginModal extends Component {
@@ -106,7 +106,7 @@ export class LoginModal extends Component {
                         </Form>
                     </ModalBody>
                     <ModalFooter>
-                        <a href="/" onClick={this.toggle}>New user? Register here!</a>
+                        <RegistrationModal text="New user? Register here!" />
                     </ModalFooter>
                 </Modal>
             </div>
