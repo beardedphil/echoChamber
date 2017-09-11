@@ -4,10 +4,7 @@ import {
     Modal,
     ModalHeader,
     ModalBody,
-    ModalFooter,
-    Form,
-    FormGroup,
-    Input
+    ModalFooter
 } from 'reactstrap';
 
 import { Sources } from './Sources.js';

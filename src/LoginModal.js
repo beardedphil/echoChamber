@@ -34,9 +34,7 @@ export class LoginModal extends Component {
             modal: false,
             username: "",
             password: "",
-            auth: false,
-            error: "",
-            user_id: ""
+            error: ""
         };
 
         this.toggle = this.toggle.bind(this);
@@ -67,8 +65,7 @@ export class LoginModal extends Component {
         let result = attemptLogin(this.state.username, this.state.password);
 
         if(result.auth) {
-            this.setState({auth: true, user_id: result.user_id});
-            this.props.handleLogin(this.state.auth, this.state.user_id)
+            this.props.handleLogin(true, result.user_id)
             this.toggle();
         } else {
             this.setState({error: result.error})

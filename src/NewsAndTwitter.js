@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { isLoggedIn, getArticles } from './utils/helpers.js'
+import { getArticles } from './utils/helpers.js'
 import { Articles } from './Articles.js'
 
 const categoryName = {
@@ -10,18 +10,19 @@ const categoryName = {
 
 export class NewsAndTwitter extends Component {
     render() {
-        let layout = null;
-
-        if (isLoggedIn()) {
-            layout = <MainHeadings mainCategory="Your News" />
-        } else {
-            layout = <MainHeadings mainCategory="Top Stories" />
-        }
-
         return(
-            <div className="container" id="main">
-                { layout }
-                <Articles articles={getArticles()} />
+            <div>
+                { this.props.isLoggedIn ? (
+                    <div className="container" id="main">
+                        <MainHeadings mainCategory="Your News" />
+                        <Articles articles={getArticles(this.props.user_id)} />
+                    </div>
+                ) : (
+                    <div className="container" id="main">
+                        <MainHeadings mainCategory="Top Stories" />
+                        <Articles articles={getArticles()} />
+                    </div>
+                )};
             </div>
         );
     }

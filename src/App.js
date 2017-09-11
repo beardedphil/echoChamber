@@ -18,7 +18,7 @@ class App extends Component {
     }
 
     handleLogin(auth, user_id) {
-        this.setState({auth: true, user_id: user_id});
+        this.setState({auth: auth, user_id: user_id});
     }
 
     handleLogout() {
@@ -29,7 +29,8 @@ class App extends Component {
         return(
             <div>
                 <Navigation handleLogin={ this.handleLogin } handleLogout= { this.handleLogout } isLoggedIn={ this.state.auth } />
-                <NewsAndTwitter />
+                <p>{ this.state.user_id }</p>
+                <NewsAndTwitter user_id={ this.state.user_id } isLoggedIn={ this.state.auth }/>
             </div>
         );
     }

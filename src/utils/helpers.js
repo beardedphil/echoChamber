@@ -17,17 +17,34 @@ export function getSources() {
     return result;
 }
 
-export function getArticles() {
+export function getArticles(user_id) {
     var result = [];
     $.ajaxSetup( { "async": false } );
-    $.getJSON('http://localhost:8000/articles', function(data) {
-        for(var i = 0, len = data.length; i < len; i++) {
-            result.push(data[i]);
-        }
-        $.ajaxSetup( { "async": true } );
-    });
+	$.ajax(
+	{
+		type: 'POST',
+		url: 'http://localhost:8000/articles',
+		data: {
+			user_id: user_id
+		},
+		success: function(data)
+		{
+			for(var i = 0, len = data.length; i < len; i++) {
+	            result.push(data[i]);
+	        }
+		}
+	});
+	$.ajaxSetup( { "async": true } );
+	return result;
 
-    return result;
+    // $.getJSON('http://localhost:8000/articles', {user_id: user_id}, function(data) {
+    //     for(var i = 0, len = data.length; i < len; i++) {
+    //         result.push(data[i]);
+    //     }
+    //     $.ajaxSetup( { "async": true } );
+    // });
+	//
+    // return result;
 }
 
 export function attemptLogin(username, password) {

@@ -15,11 +15,14 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-@app.route("/articles")
+@app.route("/articles", methods=["POST"])
 @crossdomain(origin='*')
 def articles():
+	user_id = request.form.get('user_id') or 29
+	print(user_id)
 	try:
-		user_id = session["user_id"]
+		if not request.form.get('user_id') or request.form.get('user_id') == '':
+			user_id = null
 		sources = UserSource.query.filter_by(user_id = user_id).all()
 		source_ids = []
 
@@ -59,42 +62,11 @@ def sources():
 
 	return jsonify(all_logo_links)
 
-# @app.route("/register", methods=["GET", "POST"])
-# def register():
-#     # if user reached route via POST (as by submitting a form via POST)
-# 	if request.method == "POST":
-#         # ensure username was submitted
-# 		if not request.form.get("username"):
-# 			return render_template("register.html", error_message="must choose a username")
-# 		elif not request.form.get("password"):
-# 			return render_template("register.html", error_message="must choose a password")
-# 		elif not (request.form.get("password") == request.form.get("password2")):
-# 			return render_template("register.html", error_message="passwords must match")
-#
-#         # query database for username
-# 		username = request.form.get("username")
-# 		rows = User.query.filter_by(username = username).first()
-#
-#         # ensure username does not already exist
-# 		if rows != None:
-# 			return render_template("register.html", error_message="that username is already taken")
-# 		else:
-# 			user = User(username, pwd_context.hash(request.form.get("password")))
-# 			db.session.add(user)
-# 			db.session.commit()
-# 			return render_template("login.html")
-#
-#     # else if user reached route via GET (as by clicking a link or via redirect)
-# 	return render_template("register.html")
-#
 @app.route("/login", methods=["POST"])
 @crossdomain(origin='*')
 def login():
 	session.clear()
 	response = {'auth': False, 'error':'', 'user_id':''}
-
-	# print(request.form.get('username'))
-	# print(request.form.get('password'))
 
 	# ensure username was submitted
 	if not request.form.get('username'):
