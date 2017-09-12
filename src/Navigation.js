@@ -65,7 +65,7 @@ export class Navigation extends Component {
 					<Navbar color="faded" light toggleable style={navStyles}>
 						<Nav>
 							{ this.props.isLoggedIn ? (
-								<SourcesModal buttonLabel="Who do you trust?" />
+								<SourcesModal buttonLabel="Who do you trust?" user_id={ this.props.user_id } />
 							) : (
 								<LoginModal buttonLabel="Who do you trust?" title="Login" error="Please login to access this area." handleLogin={ this.props.handleLogin } />
 							)}

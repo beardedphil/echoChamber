@@ -37,9 +37,13 @@ class Source(db.Model):
     __tablename__ = 'sources'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     source = db.Column(db.Text, nullable=False)
+    logo_link = db.Column(db.Text, nullable=False)
+    brand = db.Column(db.Text, nullable=False)
 
-    def __init__(self, source):
+    def __init__(self, source, logo_link, brand):
         self.source = source
+        self.logo_link = logo_link
+        self.brand = brand
 
 class Keyword(db.Model):
     __tablename__ = 'keywords'
@@ -65,6 +69,6 @@ class UserSource(db.Model):
     user_id = db.Column(db.Integer, nullable=False)
     source_id = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, keyword):
+    def __init__(self, user_id, source_id):
         self.user_id = user_id
         self.source_id = source_id

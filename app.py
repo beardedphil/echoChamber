@@ -51,16 +51,74 @@ def articles():
 
 	return jsonify(articlesDict)
 
-@app.route("/sources", methods=["GET"])
+@app.route("/user_sources", methods=["POST"])
 @crossdomain(origin='*')
-def sources():
-	all_sources_info = Source.query.all()
-	all_logo_links = []
+def user_sources():
+	userSources = UserSource.query.filter_by(user_id = request.form.get('user_id')).all()
+	userSourceList = []
+	for source in userSources:
+		userSourceList.append(source.source_id)
 
-	for source in all_sources_info:
-		all_logo_links.append("//logo.clearbit.com/" + source.source)
+	user_sources_info = Source.query.filter(Source.id.in_(userSourceList))
+	# for source in user_sources_info:
+	# 	print("Source")
+	# 	print(source)
+	# all_sources_info = Source.query.all()
+	# all_logo_links = []
+	sourcesDict = []
 
-	return jsonify(all_logo_links)
+	for source in user_sources_info:
+		sourceDict = source.__dict__
+		sourceDict.pop('_sa_instance_state')
+		sourcesDict.append(sourceDict)
+
+	return jsonify(sourcesDict)
+
+@app.route("/other_sources", methods=["POST"])
+@crossdomain(origin='*')
+def other_sources():
+	userSources = UserSource.query.filter_by(user_id = request.form.get('user_id')).all()
+	userSourceList = []
+
+	for source in userSources:
+		userSourceList.append(source.source_id)
+
+	print(userSourceList)
+
+	other_sources_info = Source.query.filter(~Source.id.in_(userSourceList))
+
+	print(other_sources_info)
+	sourcesDict = []
+
+	for source in other_sources_info:
+		sourceDict = source.__dict__
+		sourceDict.pop('_sa_instance_state')
+		sourcesDict.append(sourceDict)
+
+	return jsonify(sourcesDict)
+
+@app.route("/switch_trust", methods=["POST"])
+@crossdomain(origin='*')
+def switch_trust():
+	trust = request.form.get('trust')
+	print("trust: {}".format(trust))
+	user_id = request.form.get('user_id')
+	source_id = request.form.get('source_id')
+	if trust == 'true':
+		userSource = UserSource.query.filter(UserSource.user_id == user_id, UserSource.source_id == source_id).first()
+		print("userSource: {}".format(userSource))
+		db.session.delete(userSource)
+	else:
+		userSource = UserSource(user_id, source_id)
+		db.session.add(userSource)
+
+	db.session.commit()
+
+	response = {
+		'success': True
+	}
+
+	return jsonify(response)
 
 @app.route("/login", methods=["POST"])
 @crossdomain(origin='*')

@@ -28,8 +28,7 @@ class App extends Component {
     render() {
         return(
             <div>
-                <Navigation handleLogin={ this.handleLogin } handleLogout= { this.handleLogout } isLoggedIn={ this.state.auth } />
-                <p>{ this.state.user_id }</p>
+                <Navigation handleLogin={ this.handleLogin } handleLogout= { this.handleLogout } isLoggedIn={ this.state.auth } user_id={ this.state.user_id } />
                 <NewsAndTwitter user_id={ this.state.user_id } isLoggedIn={ this.state.auth }/>
             </div>
         );

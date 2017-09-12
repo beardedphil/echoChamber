@@ -4,17 +4,46 @@ export function isLoggedIn() {
 	return false;
 }
 
-export function getSources() {
+export function getUserSources(user_id) {
     var result = [];
 	$.ajaxSetup( { "async": false } );
-	$.getJSON('http://localhost:8000/sources', function(data) {
-		for(var i = 0, len = data.length; i < len; i++) {
-			result.push(data[i]);
+	$.ajax(
+	{
+		type: 'POST',
+		url: 'http://localhost:8000/user_sources',
+		data: {
+			user_id: user_id
+		},
+		success: function(data) {
+			for(var i = 0, len = data.length; i < len; i++) {
+				result.push(data[i]);
+			}
 		}
-		$.ajaxSetup( { "async": true} );
 	});
 
-    return result;
+	console.log(result);
+	return result;
+}
+
+export function getOtherSources(user_id) {
+    var result = [];
+	$.ajaxSetup( { "async": false } );
+	$.ajax(
+	{
+		type: 'POST',
+		url: 'http://localhost:8000/other_sources',
+		data: {
+			user_id: user_id
+		},
+		success: function(data) {
+			for(var i = 0, len = data.length; i < len; i++) {
+				result.push(data[i]);
+			}
+		}
+	});
+
+	console.log(result);
+	return result;
 }
 
 export function getArticles(user_id) {
@@ -69,6 +98,27 @@ export function attemptRegistration(username, password, password2) {
 			username: username,
 			password: password,
 			password2: password2
+		},
+		success: function(data)
+		{
+			result = data;
+		}
+	});
+	$.ajaxSetup( { "async": true } );
+	return result
+}
+
+export function switchTrust(sourceId, user_id, trust) {
+	let result = []
+	$.ajaxSetup( { "async": false } );
+	$.ajax(
+	{
+		type: 'POST',
+		url: 'http://localhost:8000/switch_trust',
+		data: {
+			source_id: sourceId,
+			user_id: user_id,
+			trust: trust
 		},
 		success: function(data)
 		{
