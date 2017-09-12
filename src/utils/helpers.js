@@ -21,7 +21,6 @@ export function getUserSources(user_id) {
 		}
 	});
 
-	console.log(result);
 	return result;
 }
 
@@ -42,7 +41,6 @@ export function getOtherSources(user_id) {
 		}
 	});
 
-	console.log(result);
 	return result;
 }
 

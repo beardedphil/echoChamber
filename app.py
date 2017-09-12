@@ -106,11 +106,15 @@ def switch_trust():
 	source_id = request.form.get('source_id')
 	if trust == 'true':
 		userSource = UserSource.query.filter(UserSource.user_id == user_id, UserSource.source_id == source_id).first()
-		print("userSource: {}".format(userSource))
-		db.session.delete(userSource)
+		# Prevent deletion attempt if userSource isn't found
+		if userSource:
+			db.session.delete(userSource)
 	else:
-		userSource = UserSource(user_id, source_id)
-		db.session.add(userSource)
+		userSource = UserSource.query.filter(UserSource.user_id == user_id, UserSource.source_id == source_id).first()
+		# Only add to db if not already there
+		if not userSource:
+			userSource = UserSource(user_id, source_id)
+			db.session.add(userSource)
 
 	db.session.commit()
 

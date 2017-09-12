@@ -54,20 +54,32 @@ class SourceRow extends Component {
 class Source extends Component {
     constructor(props) {
         super(props);
+        this.state = {
+            isVisible: true
+        };
+
         this.sourceClickHandler = this.sourceClickHandler.bind(this);
     }
 
     sourceClickHandler() {
         switchTrust(this.props.sourceId, this.props.user_id, this.props.trust);
-        console.log(this.props.sourceId)
+        this.setState({
+            isVisible: false
+        });
+        console.log('Source #' + this.props.sourceId + ' should be visible - ' + this.state.isVisible)
     }
 
     render() {
         return (
             <div className="col-md-3">
-                <div style={sourceSelectionContainerStyles} onClick={ this.sourceClickHandler }>
-                    <button style={logoButtonStyles}><img style={sourceSelectionLinkStyles} src={this.props.logoUrl} alt={this.props.brand} /></button>
-                </div>
+                <p>{ this.state.isVisible }</p>
+                { this.state.isVisible ? (
+                    <div style={sourceSelectionContainerStyles} onClick={ this.sourceClickHandler }>
+                        <button style={logoButtonStyles}><img style={sourceSelectionLinkStyles} src={this.props.logoUrl} alt={this.props.brand} /></button>
+                    </div>
+                ) : (
+                    <div></div>
+                )}
             </div>
         );
     }
