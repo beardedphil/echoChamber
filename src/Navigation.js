@@ -65,9 +65,9 @@ export class Navigation extends Component {
 					<Navbar color="faded" light toggleable style={navStyles}>
 						<Nav>
 							{ this.props.isLoggedIn ? (
-								<SourcesModal buttonLabel="Who do you trust?" user_id={ this.props.user_id } />
+								<SourcesModal fetchArticles={ this.props.fetchArticles } buttonLabel="Who do you trust?" user_id={ this.props.user_id } />
 							) : (
-								<LoginModal buttonLabel="Who do you trust?" title="Login" error="Please login to access this area." handleLogin={ this.props.handleLogin } />
+								<LoginModal fetchArticles={ this.props.fetchArticles } buttonLabel="Who do you trust?" title="Login" error="Please login to access this area." handleLogin={ this.props.handleLogin } />
 							)}
 
 						</Nav>
@@ -75,7 +75,7 @@ export class Navigation extends Component {
 							{ this.props.isLoggedIn ? (
 								<Button onClick={ this.props.handleLogout } color="primary" style={ loginToggleStyles }>Logout</Button>
 							) : (
-								<LoginModal buttonLabel="Login" handleLogin={ this.props.handleLogin } style={ loginToggleStyles }/>
+								<LoginModal fetchArticles={ this.props.fetchArticles } buttonLabel="Login" handleLogin={ this.props.handleLogin } style={ loginToggleStyles }/>
 							)}
 						</Nav>
 					</Navbar>

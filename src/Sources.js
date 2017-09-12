@@ -26,7 +26,7 @@ export class Sources extends Component {
         let sources = []
 
         for (var i = 0; i < numSources; i++) {
-            sources.push(<Source fetchData={this.props.fetchData} user_id={this.props.user_id} sourceId={this.props.sourceIds[i]} logoUrl={this.props.logoUrls[i]} sourceUrl={this.props.sourceUrls[i]} brand={this.props.brands[i]} trust={this.props.trust[i]} key={i}/>)
+            sources.push(<Source fetchSources={this.props.fetchSources} user_id={this.props.user_id} sourceId={this.props.sourceIds[i]} logoUrl={this.props.logoUrls[i]} sourceUrl={this.props.sourceUrls[i]} brand={this.props.brands[i]} trust={this.props.trust[i]} key={i}/>)
         }
 
         return(
@@ -46,7 +46,7 @@ class Source extends Component {
 
     sourceClickHandler() {
         switchTrust(this.props.sourceId, this.props.user_id, this.props.trust);
-        this.props.fetchData();
+        this.props.fetchSources();
     }
 
     render() {

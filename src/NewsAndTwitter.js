@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 
-import { getArticles } from './utils/helpers.js'
 import { Articles } from './Articles.js'
 
 const categoryName = {
@@ -11,18 +10,13 @@ const categoryName = {
 export class NewsAndTwitter extends Component {
     render() {
         return(
-            <div>
+            <div className="container" id="main">
                 { this.props.isLoggedIn ? (
-                    <div className="container" id="main">
-                        <MainHeadings mainCategory="Your News" />
-                        <Articles articles={getArticles(this.props.user_id)} />
-                    </div>
+                    <MainHeadings mainCategory="Your News" />
                 ) : (
-                    <div className="container" id="main">
-                        <MainHeadings mainCategory="Top Stories" />
-                        <Articles articles={getArticles()} />
-                    </div>
-                )};
+                    <MainHeadings mainCategory="Top Stories" />
+                ) }
+                <Articles articles={this.props.articles} />
             </div>
         );
     }

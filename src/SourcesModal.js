@@ -29,18 +29,24 @@ export class SourcesModal extends Component {
         };
 
         this.toggle = this.toggle.bind(this);
-        this.fetchData = this.fetchData.bind(this);
+        this.fetchSources = this.fetchSources.bind(this);
     }
 
     componentWillMount() {
-        this.fetchData()
+        this.fetchSources()
     }
 
-    fetchData() {
+    fetchSources() {
         this.setState({
             userSources: getUserSources(this.props.user_id),
             otherSources: getOtherSources(this.props.user_id)
         })
+        this.props.fetchArticles()
+    }
+
+    componentWillUnmount() {
+        console.log('unmount')
+        this.props.fetchArticles()
     }
 
     toggle() {
@@ -87,12 +93,12 @@ export class SourcesModal extends Component {
                     <ModalBody style={modalBodyStyles}>
                         <h3>These are your trusted sources:</h3>
                         <h6>(Click a source to remove it)</h6>
-                        <Sources fetchData={this.fetchData} user_id={this.props.user_id} sourceIds={userSourceIds} logoUrls={userSourceLogoUrls} sourceUrls={userSourceUrls} brands={userSourceBrands} trust={userSourceTrusted} />
+                        <Sources fetchSources={this.fetchSources} user_id={this.props.user_id} sourceIds={userSourceIds} logoUrls={userSourceLogoUrls} sourceUrls={userSourceUrls} brands={userSourceBrands} trust={userSourceTrusted} />
                         <hr style={hrStyles} />
                         <hr style={hrStyles} />
                         <h3>You have not trusted these sources:</h3>
                         <h6>(Click a source to add it to your trusted sources)</h6>
-                        <Sources fetchData={this.fetchData} user_id={this.props.user_id} sourceIds={otherSourceIds} logoUrls={otherSourceLogoUrls} sourceUrls={otherSourceUrls} brands={otherSourceBrands} trust={otherSourceTrusted}/>
+                        <Sources fetchSources={this.fetchSources} user_id={this.props.user_id} sourceIds={otherSourceIds} logoUrls={otherSourceLogoUrls} sourceUrls={otherSourceUrls} brands={otherSourceBrands} trust={otherSourceTrusted}/>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onClick={this.toggle}>Done</Button>

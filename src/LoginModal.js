@@ -50,6 +50,7 @@ export class LoginModal extends Component {
             error: "",
             modal: !this.state.modal
         });
+        this.props.fetchArticles();
     }
 
     handleUsernameChange(e) {
@@ -71,7 +72,6 @@ export class LoginModal extends Component {
             this.setState({error: result.error})
             this.setState({username: "", password: ""});
         }
-
     }
 
     showModal() {
