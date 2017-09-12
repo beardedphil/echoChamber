@@ -10,14 +10,37 @@ import {
 import { Sources } from './Sources.js';
 import { getUserSources, getOtherSources } from './utils/helpers.js'
 
+const hrStyles = {
+    width: '100%',
+}
+
+const modalBodyStyles = {
+    textAlign: 'center',
+    paddingLeft: '2em'
+}
+
 export class SourcesModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            modal: false
+            modal: false,
+            userSources: [],
+            otherSources: []
         };
 
         this.toggle = this.toggle.bind(this);
+        this.fetchData = this.fetchData.bind(this);
+    }
+
+    componentWillMount() {
+        this.fetchData()
+    }
+
+    fetchData() {
+        this.setState({
+            userSources: getUserSources(this.props.user_id),
+            otherSources: getOtherSources(this.props.user_id)
+        })
     }
 
     toggle() {
@@ -27,8 +50,8 @@ export class SourcesModal extends Component {
     }
 
     render() {
-        let userSources = getUserSources(this.props.user_id);
-        let otherSources = getOtherSources(this.props.user_id);
+        let userSources = this.state.userSources;
+        let otherSources = this.state.otherSources;
 
         let userSourceIds = [];
         let userSourceLogoUrls = [];
@@ -61,10 +84,15 @@ export class SourcesModal extends Component {
                 <Button color="primary" onClick={this.toggle}>{this.props.buttonLabel}</Button>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className="modal-lg">
                     <ModalHeader toggle={this.toggle}>Who do you trust?</ModalHeader>
-                    <ModalBody className="text-center">
-                        <Sources user_id={this.props.user_id} sourceIds={userSourceIds} logoUrls={userSourceLogoUrls} sourceUrls={userSourceUrls} brands={userSourceBrands} trust={userSourceTrusted} />
-                        <hr />
-                        <Sources user_id={this.props.user_id} sourceIds={otherSourceIds} logoUrls={otherSourceLogoUrls} sourceUrls={otherSourceUrls} brands={otherSourceBrands} trust={otherSourceTrusted}/>
+                    <ModalBody style={modalBodyStyles}>
+                        <h3>These are your trusted sources:</h3>
+                        <h6>(Click a source to remove it)</h6>
+                        <Sources fetchData={this.fetchData} user_id={this.props.user_id} sourceIds={userSourceIds} logoUrls={userSourceLogoUrls} sourceUrls={userSourceUrls} brands={userSourceBrands} trust={userSourceTrusted} />
+                        <hr style={hrStyles} />
+                        <hr style={hrStyles} />
+                        <h3>You have not trusted these sources:</h3>
+                        <h6>(Click a source to add it to your trusted sources)</h6>
+                        <Sources fetchData={this.fetchData} user_id={this.props.user_id} sourceIds={otherSourceIds} logoUrls={otherSourceLogoUrls} sourceUrls={otherSourceUrls} brands={otherSourceBrands} trust={otherSourceTrusted}/>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onClick={this.toggle}>Done</Button>

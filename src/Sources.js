@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import { switchTrust } from './utils/helpers.js'
 
 const sourceSelectionContainerStyles = {
+    float: 'left',
     border: "1px solid black",
-    marginBottom: '.5em'
+    margin: '1.2%',
+    width: '22%'
 }
 
 const sourceSelectionLinkStyles = {
@@ -20,32 +22,16 @@ const logoButtonStyles = {
 
 export class Sources extends Component {
     render() {
-        let row = [];
-        let rowLength = 4;
-        let rows = [];
-        let numStories = this.props.logoUrls.length;
+        let numSources = this.props.logoUrls.length;
+        let sources = []
 
-        for (var i = 0, rowCount = 0; i < numStories; rowCount++) {
-            for (var j = 0; j < rowLength && i < numStories; j++, i++) {
-                row.push(<Source user_id={this.props.user_id} sourceId={this.props.sourceIds[i]} logoUrl={this.props.logoUrls[i]} sourceUrl={this.props.sourceUrls[i]} brand={this.props.brands[i]} trust={this.props.trust[i]} key={i}/>)
-            }
-            rows.push(<SourceRow logoUrls={row} key={rowCount}/>);
-            row = [];
+        for (var i = 0; i < numSources; i++) {
+            sources.push(<Source fetchData={this.props.fetchData} user_id={this.props.user_id} sourceId={this.props.sourceIds[i]} logoUrl={this.props.logoUrls[i]} sourceUrl={this.props.sourceUrls[i]} brand={this.props.brands[i]} trust={this.props.trust[i]} key={i}/>)
         }
 
         return(
             <div>
-                { rows }
-            </div>
-        );
-    }
-}
-
-class SourceRow extends Component {
-    render() {
-        return(
-            <div className="row">
-                { this.props.logoUrls }
+                { sources }
             </div>
         );
     }
@@ -54,32 +40,19 @@ class SourceRow extends Component {
 class Source extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            isVisible: true
-        };
 
         this.sourceClickHandler = this.sourceClickHandler.bind(this);
     }
 
     sourceClickHandler() {
         switchTrust(this.props.sourceId, this.props.user_id, this.props.trust);
-        this.setState({
-            isVisible: false
-        });
-        console.log('Source #' + this.props.sourceId + ' should be visible - ' + this.state.isVisible)
+        this.props.fetchData();
     }
 
     render() {
         return (
-            <div className="col-md-3">
-                <p>{ this.state.isVisible }</p>
-                { this.state.isVisible ? (
-                    <div style={sourceSelectionContainerStyles} onClick={ this.sourceClickHandler }>
-                        <button style={logoButtonStyles}><img style={sourceSelectionLinkStyles} src={this.props.logoUrl} alt={this.props.brand} /></button>
-                    </div>
-                ) : (
-                    <div></div>
-                )}
+            <div style={sourceSelectionContainerStyles} onClick={ this.sourceClickHandler }>
+                <button style={logoButtonStyles}><img style={sourceSelectionLinkStyles} src={this.props.logoUrl} alt={this.props.brand} /></button>
             </div>
         );
     }

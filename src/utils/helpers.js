@@ -1,9 +1,5 @@
 import $ from 'jquery';
 
-export function isLoggedIn() {
-	return false;
-}
-
 export function getUserSources(user_id) {
     var result = [];
 	$.ajaxSetup( { "async": false } );
@@ -20,7 +16,7 @@ export function getUserSources(user_id) {
 			}
 		}
 	});
-
+	$.ajaxSetup( { "async": true } );
 	return result;
 }
 
@@ -40,7 +36,7 @@ export function getOtherSources(user_id) {
 			}
 		}
 	});
-
+	$.ajaxSetup( { "async": true } );
 	return result;
 }
 
