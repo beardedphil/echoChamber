@@ -26,12 +26,10 @@ class App extends Component {
 
     fetchArticles() {
         if(this.state.user_id) {
-            console.log('Fetched with id')
             this.setState({
                 articles: getArticles(this.state.user_id)
             })
         } else {
-            console.log('Fetched without id')
             this.setState({
                 articles: getArticles()
             })

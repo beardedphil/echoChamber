@@ -40,7 +40,7 @@ export function getOtherSources(user_id) {
 	return result;
 }
 
-export function getArticles(user_id) {
+export function getArticles(user_id, currentIndex=0, numberOfArticles=20) {
     var result = [];
     $.ajaxSetup( { "async": false } );
 	$.ajax(
@@ -52,7 +52,7 @@ export function getArticles(user_id) {
 		},
 		success: function(data)
 		{
-			for(var i = 0, len = data.length; i < len; i++) {
+			for(var i = currentIndex, len = data.length, lastArticle = currentIndex + numberOfArticles; i < len && i < lastArticle; i++) {
 	            result.push(data[i]);
 	        }
 		}
@@ -121,4 +121,23 @@ export function switchTrust(sourceId, user_id, trust) {
 	});
 	$.ajaxSetup( { "async": true } );
 	return result
+}
+
+export function search(query, user_id) {
+    let result = []
+    $.ajaxSetup( { "async": false } );
+    $.ajax(
+    {
+        type: 'POST',
+        url: 'http://localhost:8000/search',
+        data: {
+            query: query
+        },
+        success: function(data)
+        {
+            result = data;
+        }
+    });
+    $.ajaxSetup( { "async": true } );
+    return result
 }

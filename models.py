@@ -59,7 +59,7 @@ class ArticleKeyword(db.Model):
     article_id = db.Column(db.Integer, nullable=False)
     keyword_id = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, keyword):
+    def __init__(self, article_id, keyword_id):
         self.article_id = article_id
         self.keyword_id = keyword_id
 

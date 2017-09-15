@@ -4,29 +4,17 @@ import {
 	NavbarToggler,
 	NavbarBrand,
 	Nav,
-	Input,
-	InputGroup,
-	InputGroupAddon,
 	Button
 } from 'reactstrap';
 
 import { LoginModal } from './LoginModal.js';
 import { SourcesModal } from './SourcesModal.js'
 import { Logo } from './Logo.js';
+import { SearchBar } from './SearchBar.js'
 
 const navStyles = {
 	float: 'none',
 	paddingBottom: '1.2em'
-}
-
-const searchNavStyles = {
-	width: '100%',
-}
-
-const searchBarStyles = {
-	float: 'none',
-	margin: '0 auto',
-	width: '30%'
 }
 
 const loginToggleStyles = {
@@ -47,6 +35,10 @@ export class Navigation extends Component {
 		this.setState({
 			isOpen: !this.state.isOpen
 		});
+	}
+
+	handleSearch() {
+		console.log('search')
 	}
 
 	render() {
@@ -81,14 +73,7 @@ export class Navigation extends Component {
 					</Navbar>
 				</div>
 				<div>
-					<Navbar color="faded" light toggleable>
-						<Nav style={searchNavStyles}>
-							<InputGroup style={searchBarStyles}>
-								<Input />
-								<InputGroupAddon>Search</InputGroupAddon>
-							</InputGroup>
-						</Nav>
-					</Navbar>
+					<SearchBar />
 				</div>
 			</div>
 		);

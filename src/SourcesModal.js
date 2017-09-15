@@ -44,11 +44,6 @@ export class SourcesModal extends Component {
         this.props.fetchArticles()
     }
 
-    componentWillUnmount() {
-        console.log('unmount')
-        this.props.fetchArticles()
-    }
-
     toggle() {
         this.setState({
             modal: !this.state.modal
@@ -77,7 +72,7 @@ export class SourcesModal extends Component {
         let otherSourceUrls = [];
         let otherSourceBrands = [];
         let otherSourceTrusted = [];
-        for (var i = 0, len = otherSources.length; i < len; i++) {
+        for (i = 0, len = otherSources.length; i < len; i++) {
             otherSourceIds.push(otherSources[i].id);
             otherSourceLogoUrls.push(otherSources[i].logo_link);
             otherSourceUrls.push(otherSources[i].source);

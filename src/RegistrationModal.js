@@ -65,8 +65,6 @@ export class RegistrationModal extends Component {
         e.preventDefault();
         let result = attemptRegistration(this.state.username, this.state.password, this.state.password2);
 
-        console.log(result);
-
         if(result.success) {
             this.toggle();
         } else {
@@ -84,7 +82,7 @@ export class RegistrationModal extends Component {
     render() {
         return (
             <div>
-                <a href="#" onClick={this.toggle}>{this.props.text}</a>
+                <a href="#void" onClick={this.toggle}>{this.props.text}</a>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>Register</ModalHeader>
                     <ModalBody className="text-center">

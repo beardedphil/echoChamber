@@ -10,6 +10,7 @@ import newspaper
 import threading
 import os
 import urllib.request
+import re
 
 app = Flask(__name__)
 

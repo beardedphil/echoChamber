@@ -18,16 +18,14 @@ Session(app)
 @app.route("/articles", methods=["POST"])
 @crossdomain(origin='*')
 def articles():
-	print(request.form.get('user_id'))
-
 	try:
 		if not request.form.get('user_id') or request.form.get('user_id') == '':
 			user_id = null
-		sources = UserSource.query.filter_by(user_id = request.form.get('user_id')).all()
+		sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
 		source_ids = []
 
 		for source in sources:
-			source_info = Source.query.filter_by(id = source.source_id).first()
+			source_info = Source.query.filter(Source.id == source.source_id).first()
 			source_ids.append(source_info.id)
 			thread = threading.Thread(target=threaded_get_articles, args=(source_info.source, source_info.id))
 			# thread.start()
@@ -54,17 +52,12 @@ def articles():
 @app.route("/user_sources", methods=["POST"])
 @crossdomain(origin='*')
 def user_sources():
-	userSources = UserSource.query.filter_by(user_id = request.form.get('user_id')).all()
+	userSources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
 	userSourceList = []
 	for source in userSources:
 		userSourceList.append(source.source_id)
 
 	user_sources_info = Source.query.filter(Source.id.in_(userSourceList))
-	# for source in user_sources_info:
-	# 	print("Source")
-	# 	print(source)
-	# all_sources_info = Source.query.all()
-	# all_logo_links = []
 	sourcesDict = []
 
 	for source in user_sources_info:
@@ -77,17 +70,13 @@ def user_sources():
 @app.route("/other_sources", methods=["POST"])
 @crossdomain(origin='*')
 def other_sources():
-	userSources = UserSource.query.filter_by(user_id = request.form.get('user_id')).all()
+	userSources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
 	userSourceList = []
 
 	for source in userSources:
 		userSourceList.append(source.source_id)
 
-	print(userSourceList)
-
 	other_sources_info = Source.query.filter(~Source.id.in_(userSourceList))
-
-	print(other_sources_info)
 	sourcesDict = []
 
 	for source in other_sources_info:
@@ -101,7 +90,6 @@ def other_sources():
 @crossdomain(origin='*')
 def switch_trust():
 	trust = request.form.get('trust')
-	print("trust: {}".format(trust))
 	user_id = request.form.get('user_id')
 	source_id = request.form.get('source_id')
 	if trust == 'true':
@@ -141,7 +129,7 @@ def login():
 		return jsonify(response);
 
 	# query database for username
-	user = User.query.filter_by(username=request.form.get("username")).first()
+	user = User.query.filter(User.username == request.form.get("username")).first()
 
 	# ensure username exists and password is correct
 	if user == None or not pwd_context.verify(request.form.get("password"), user.hash):
@@ -179,7 +167,7 @@ def register():
 		return jsonify(response);
 
 	# query database for username
-	user = User.query.filter_by(username=request.form.get("username")).first()
+	user = User.query.filter(User.username == request.form.get("username")).first()
 
 	# ensure username does not exist
 	if user != None:
@@ -190,13 +178,25 @@ def register():
 		db.session.commit()
 		response['success'] = True
 
-	print(response)
-	return jsonify(response);
+	return jsonify(response)
+
+@app.route("/search", methods=["POST"])
+@crossdomain(origin='*')
+def search():
+	query = request.form.get('query')
+	queryWords = query.split()
+	strippedWords = []
+
+	for word in queryWords:
+		strippedWords.append((re.sub("[^a-zA-Z]+", "", word).lower()))
+
+
+	return jsonify(strippedWords)
 
 def threaded_get_articles(source, source_id):
 	with app.app_context():
 		default_image_link = '/src/assets/temp_rous.jpg'
-		paper = newspaper.build('http://' + source, memoize_articles=False)
+		paper = newspaper.build('http://' + source, language='en')
 		for article in paper.articles:
 			try:
 				article.download()
@@ -209,6 +209,8 @@ def threaded_get_articles(source, source_id):
 				print("No title")
 			elif not article.url:
 				print("No url")
+			elif not article.keywords or article.keywords == None:
+				print("No keywords")
 			else:
 				if not article.summary:
 					article.summary = "Summary not available"
@@ -222,10 +224,31 @@ def threaded_get_articles(source, source_id):
 
 				article.logo_link = "//logo.clearbit.com/" + source
 
-				new_article = Article(article.title, article.url, article.summary, article.image_link, article.logo_link, article.publish_date, source_id)
+				existingArticle = Article.query.filter(Article.url == article.url).first()
+				similarArticle = Article.query.filter(Article.title == article.title, Article.source_id == source_id).first()
 
-				db.session.add(new_article)
-				db.session.commit()
+				if not existingArticle and not similarArticle:
+					new_article = Article(article.title, article.url, article.summary, article.image_link, article.logo_link, article.publish_date, source_id)
+
+					db.session.add(new_article)
+					db.session.flush()
+					db.session.commit()
+
+					for keyword in article.keywords:
+						existingKeyword = Keyword.query.filter(Keyword.keyword == keyword).first()
+						if not existingKeyword:
+							newKeyword = Keyword(keyword)
+							db.session.add(newKeyword)
+							db.session.flush()
+							keywordId = newKeyword.id
+							db.session.commit()
+						else:
+							keywordId = existingKeyword.id
+
+						articleKeyword = ArticleKeyword(new_article.id, keywordId)
+						db.session.add(articleKeyword)
+						db.session.commit()
+
 
 if __name__ == '__main__':
 	app.run()
