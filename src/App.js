@@ -3,7 +3,7 @@ import './App.css';
 
 import { Navigation } from './Navigation.js';
 import { NewsAndTwitter } from './NewsAndTwitter.js';
-import { getArticles } from './utils/helpers.js'
+import { getArticles, search } from './utils/helpers.js'
 
 class App extends Component {
     constructor(props) {
@@ -16,6 +16,7 @@ class App extends Component {
         };
 
         this.fetchArticles = this.fetchArticles.bind(this);
+        this.searchArticles = this.searchArticles.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
         this.handleLogout = this.handleLogout.bind(this);
     }
@@ -36,6 +37,13 @@ class App extends Component {
         }
     }
 
+    searchArticles(query) {
+        console.log("Searching - Query: " + query)
+        this.setState({
+            articles: search(query, this.state.user_id)
+        })
+    }
+
     handleLogin(auth, user_id) {
         this.setState({auth: auth, user_id: user_id});
         this.fetchArticles()
@@ -49,7 +57,7 @@ class App extends Component {
     render() {
         return(
             <div>
-                <Navigation fetchArticles={ this.fetchArticles } handleLogin={ this.handleLogin } handleLogout= { this.handleLogout } isLoggedIn={ this.state.auth } user_id={ this.state.user_id } />
+                <Navigation searchArticles={ this.searchArticles } fetchArticles={ this.fetchArticles } handleLogin={ this.handleLogin } handleLogout= { this.handleLogout } isLoggedIn={ this.state.auth } user_id={ this.state.user_id } />
                 <NewsAndTwitter user_id={ this.state.user_id } isLoggedIn={ this.state.auth } articles={ this.state.articles }/>
             </div>
         );

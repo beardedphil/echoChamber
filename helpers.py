@@ -11,6 +11,7 @@ import threading
 import os
 import urllib.request
 import re
+import itertools
 
 app = Flask(__name__)
 

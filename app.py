@@ -183,15 +183,93 @@ def register():
 @app.route("/search", methods=["POST"])
 @crossdomain(origin='*')
 def search():
+
+	# The following search and sort is based on the idea that matching all words
+	# would be best, but when all words aren't matched, the earlier a word
+	# appears in the query, the valuable matching that word should be.
+
 	query = request.form.get('query')
-	queryWords = query.split()
-	strippedWords = []
+	response = {
+		'error': 'No query received'
+	}
 
-	for word in queryWords:
-		strippedWords.append((re.sub("[^a-zA-Z]+", "", word).lower()))
+	if query:
+		# break query string into keywords (lowercase, no punctuation)
+		queryWords = query.split()
+		strippedWords = []
+		for word in queryWords:
+			strippedWords.append((re.sub("[^a-zA-Z]+", "", word).lower()))
 
+		# get ids for each keyword
+		keywordIds = []
+		for word in strippedWords:
+			keywordId = Keyword.query.filter(Keyword.keyword == word).first().id
+			keywordIds.append(keywordId)
 
-	return jsonify(strippedWords)
+		if keywordIds:
+
+			# query database for a list of all articles associated with each keyword
+			articleLists = []
+
+			for index, k_id in enumerate(keywordIds):
+				article_ids = []
+				articles = ArticleKeyword.query.filter(ArticleKeyword.keyword_id == k_id).all()
+				for article in articles:
+					article_ids.append(article.article_id)
+				articleLists.append(article_ids)
+
+			# create an index for each word in the search query, then
+			# build a list of lists of all possible orderings of those indices.
+			indices = []
+			for i in range(len(keywordIds)):
+				indices.append(i)
+
+			indicesCombos = []
+			for i in indices:
+				indicesCombos += itertools.combinations(indices, i + 1)
+
+			indicesComboList = [ list(t) for t in indicesCombos ]
+			indicesComboList.sort(key=len, reverse=True)
+
+			matchingArticleIds = []
+			for combo in indicesComboList:
+				sets = []
+				for i in combo:
+					sets.append(set(articleLists[i]))
+
+				intersection = set.intersection(*sets)
+				if intersection:
+					matchingArticleIds.extend(intersection)
+
+			if request.form.get('user_id'):
+				print('user_id: '.format(request.form.get('user_id')))
+				sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
+				source_ids = []
+
+				for source in sources:
+					source_info = Source.query.filter(Source.id == source.source_id).first()
+					source_ids.append(source_info.id)
+
+				print('Source IDs: {}'.format(source_ids))
+
+				matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).filter(Article.source_id.in_(source_ids)).all()
+			else:
+				print('else')
+				matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).all()
+
+			articlesDict = []
+
+			for article in matchingArticles:
+				articleDict = article.__dict__
+				articleDict.pop('_sa_instance_state')
+				articleDict.pop('id')
+				articleDict.pop('summary')
+				articleDict.pop('publish_date')
+				articleDict.pop('source_id')
+				articlesDict.append(articleDict)
+
+			return jsonify(articlesDict)
+	return jsonify(response)
 
 def threaded_get_articles(source, source_id):
 	with app.app_context():

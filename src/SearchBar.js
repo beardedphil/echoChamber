@@ -7,8 +7,6 @@ import {
 	InputGroupButton
 } from 'reactstrap';
 
-import { search } from './utils/helpers.js';
-
 const searchNavStyles = {
 	width: '100%',
 }
@@ -36,8 +34,8 @@ export class SearchBar extends Component {
 
     handleSearch(e) {
         e.preventDefault();
-        let result = search(this.state.query, this.props.user_id);
-
+        this.props.searchArticles(this.state.query)
+        this.setState({query: ""})
     }
 
     render() {
@@ -45,7 +43,7 @@ export class SearchBar extends Component {
             <Navbar color="faded" light toggleable>
                 <Nav style={searchNavStyles}>
                     <InputGroup style={searchBarStyles}>
-                        <Input onChange={ this.handleQueryChange } />
+                        <Input value={this.state.query} onChange={ this.handleQueryChange } />
                         <InputGroupButton onClick={ this.handleSearch }>Search</InputGroupButton>
                     </InputGroup>
                 </Nav>

@@ -73,7 +73,7 @@ export class Navigation extends Component {
 					</Navbar>
 				</div>
 				<div>
-					<SearchBar />
+					<SearchBar searchArticles={ this.props.searchArticles }/>
 				</div>
 			</div>
 		);

@@ -123,7 +123,7 @@ export function switchTrust(sourceId, user_id, trust) {
 	return result
 }
 
-export function search(query, user_id) {
+export function search(query, user_id, currentIndex=0, numberOfArticles=20) {
     let result = []
     $.ajaxSetup( { "async": false } );
     $.ajax(
@@ -131,11 +131,14 @@ export function search(query, user_id) {
         type: 'POST',
         url: 'http://localhost:8000/search',
         data: {
-            query: query
+            query: query,
+            user_id: user_id
         },
         success: function(data)
         {
-            result = data;
+            for(var i = currentIndex, len = data.length, lastArticle = currentIndex + numberOfArticles; i < len && i < lastArticle; i++) {
+	            result.push(data[i]);
+	        }
         }
     });
     $.ajaxSetup( { "async": true } );
