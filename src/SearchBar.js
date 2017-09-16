@@ -29,7 +29,8 @@ export class SearchBar extends Component {
     }
 
     handleQueryChange(e) {
-       this.setState({query: e.target.value});
+       this.setState({query: e.target.value})
+       this.props.searchArticles(e.target.value)
     }
 
     handleSearch(e) {

@@ -189,11 +189,23 @@ def search():
 	# appears in the query, the valuable matching that word should be.
 
 	query = request.form.get('query')
-	response = {
-		'error': 'No query received'
-	}
 
-	if query:
+	if query == "":
+		matchingArticles = Article.query.all()
+		articlesDict = []
+
+		for article in matchingArticles:
+			articleDict = article.__dict__
+			articleDict.pop('_sa_instance_state')
+			articleDict.pop('id')
+			articleDict.pop('summary')
+			articleDict.pop('publish_date')
+			articleDict.pop('source_id')
+			articlesDict.append(articleDict)
+
+		return jsonify(articlesDict)
+
+	else:
 		# break query string into keywords (lowercase, no punctuation)
 		queryWords = query.split()
 		strippedWords = []
@@ -203,11 +215,35 @@ def search():
 		# get ids for each keyword
 		keywordIds = []
 		for word in strippedWords:
-			keywordId = Keyword.query.filter(Keyword.keyword == word).first().id
+			keywordRow = Keyword.query.filter(Keyword.keyword == word).first()
+			if keywordRow:
+				keywordId = keywordRow.id
+				keywordIds.append(keywordId)
+
+		# for the last word, grab the first matching keyword from the db
+		# this should be updated to choose all matching keywords
+		lastWord = strippedWords[-1] + '%'
+		keywordRow = Keyword.query.filter(Keyword.keyword.like(lastWord)).first()
+		if keywordRow:
+			keywordId = keywordRow.id
 			keywordIds.append(keywordId)
 
-		if keywordIds:
+		if not keywordIds:
+			matchingArticles = Article.query.all()
+			articlesDict = []
 
+			for article in matchingArticles:
+				articleDict = article.__dict__
+				articleDict.pop('_sa_instance_state')
+				articleDict.pop('id')
+				articleDict.pop('summary')
+				articleDict.pop('publish_date')
+				articleDict.pop('source_id')
+				articlesDict.append(articleDict)
+
+			return jsonify(articlesDict)
+
+		else:
 			# query database for a list of all articles associated with each keyword
 			articleLists = []
 
@@ -242,7 +278,6 @@ def search():
 					matchingArticleIds.extend(intersection)
 
 			if request.form.get('user_id'):
-				print('user_id: '.format(request.form.get('user_id')))
 				sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
 				source_ids = []
 
@@ -250,11 +285,8 @@ def search():
 					source_info = Source.query.filter(Source.id == source.source_id).first()
 					source_ids.append(source_info.id)
 
-				print('Source IDs: {}'.format(source_ids))
-
 				matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).filter(Article.source_id.in_(source_ids)).all()
 			else:
-				print('else')
 				matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).all()
 
 			articlesDict = []
