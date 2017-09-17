@@ -7,6 +7,7 @@ from datetime import timedelta
 from werkzeug.wrappers import Response
 
 import newspaper
+from newspaper import news_pool
 import threading
 import os
 import urllib.request

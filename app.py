@@ -36,18 +36,7 @@ def articles():
 		# Should eventually be getTopStories()
 		articles = Article.query.all()
 
-	articlesDict = []
-
-	for article in articles:
-		articleDict = article.__dict__
-		articleDict.pop('_sa_instance_state')
-		articleDict.pop('id')
-		articleDict.pop('summary')
-		articleDict.pop('publish_date')
-		articleDict.pop('source_id')
-		articlesDict.append(articleDict)
-
-	return jsonify(articlesDict)
+	return createJsonResponse(articles)
 
 @app.route("/user_sources", methods=["POST"])
 @crossdomain(origin='*')
@@ -192,18 +181,7 @@ def search():
 
 	if query == "":
 		matchingArticles = Article.query.all()
-		articlesDict = []
-
-		for article in matchingArticles:
-			articleDict = article.__dict__
-			articleDict.pop('_sa_instance_state')
-			articleDict.pop('id')
-			articleDict.pop('summary')
-			articleDict.pop('publish_date')
-			articleDict.pop('source_id')
-			articlesDict.append(articleDict)
-
-		return jsonify(articlesDict)
+		return createJsonResponse(matchingArticles)
 
 	else:
 		# break query string into keywords (lowercase, no punctuation)
@@ -230,18 +208,7 @@ def search():
 
 		if not keywordIds:
 			matchingArticles = Article.query.all()
-			articlesDict = []
-
-			for article in matchingArticles:
-				articleDict = article.__dict__
-				articleDict.pop('_sa_instance_state')
-				articleDict.pop('id')
-				articleDict.pop('summary')
-				articleDict.pop('publish_date')
-				articleDict.pop('source_id')
-				articlesDict.append(articleDict)
-
-			return jsonify(articlesDict)
+			return createJsonResponse(matchingArticles)
 
 		else:
 			# query database for a list of all articles associated with each keyword
@@ -289,75 +256,21 @@ def search():
 			else:
 				matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).all()
 
-			articlesDict = []
+	return createJsonResponse(matchingArticles)
 
-			for article in matchingArticles:
-				articleDict = article.__dict__
-				articleDict.pop('_sa_instance_state')
-				articleDict.pop('id')
-				articleDict.pop('summary')
-				articleDict.pop('publish_date')
-				articleDict.pop('source_id')
-				articlesDict.append(articleDict)
+def createJsonResponse(articles):
+	articlesDict = []
 
-			return jsonify(articlesDict)
-	return jsonify(response)
+	for article in articles:
+		articleDict = article.__dict__
+		articleDict.pop('_sa_instance_state')
+		articleDict.pop('id')
+		articleDict.pop('summary')
+		articleDict.pop('publish_date')
+		articleDict.pop('source_id')
+		articlesDict.append(articleDict)
 
-def threaded_get_articles(source, source_id):
-	with app.app_context():
-		default_image_link = '/src/assets/temp_rous.jpg'
-		paper = newspaper.build('http://' + source, language='en')
-		for article in paper.articles:
-			try:
-				article.download()
-				article.parse()
-				article.nlp()
-			except:
-				continue
-
-			if not article.title or article.title == "None":
-				print("No title")
-			elif not article.url:
-				print("No url")
-			elif not article.keywords or article.keywords == None:
-				print("No keywords")
-			else:
-				if not article.summary:
-					article.summary = "Summary not available"
-
-				if article.top_image:
-					article.image_link = article.top_image
-				elif article.images:
-					article.image_link = article.images.pop()
-				else:
-					article.image_link = default_image_link
-
-				article.logo_link = "//logo.clearbit.com/" + source
-
-				existingArticle = Article.query.filter(Article.url == article.url).first()
-				similarArticle = Article.query.filter(Article.title == article.title, Article.source_id == source_id).first()
-
-				if not existingArticle and not similarArticle:
-					new_article = Article(article.title, article.url, article.summary, article.image_link, article.logo_link, article.publish_date, source_id)
-
-					db.session.add(new_article)
-					db.session.flush()
-					db.session.commit()
-
-					for keyword in article.keywords:
-						existingKeyword = Keyword.query.filter(Keyword.keyword == keyword).first()
-						if not existingKeyword:
-							newKeyword = Keyword(keyword)
-							db.session.add(newKeyword)
-							db.session.flush()
-							keywordId = newKeyword.id
-							db.session.commit()
-						else:
-							keywordId = existingKeyword.id
-
-						articleKeyword = ArticleKeyword(new_article.id, keywordId)
-						db.session.add(articleKeyword)
-						db.session.commit()
+	return jsonify(articlesDict)
 
 
 if __name__ == '__main__':
