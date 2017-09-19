@@ -45,8 +45,9 @@ class Source extends Component {
     }
 
     sourceClickHandler() {
-        switchTrust(this.props.sourceId, this.props.user_id, this.props.trust);
-        this.props.fetchSources();
+        switchTrust(this.props.sourceId, this.props.user_id, this.props.trust, function() {
+            this.props.fetchSources();
+        }.bind(this));
     }
 
     render() {

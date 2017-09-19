@@ -37,10 +37,18 @@ export class SourcesModal extends Component {
     }
 
     fetchSources() {
-        this.setState({
-            userSources: getUserSources(this.props.user_id),
-            otherSources: getOtherSources(this.props.user_id)
-        })
+        getUserSources(this.props.user_id, function(result) {
+            this.setState({
+                userSources: result
+            })
+        }.bind(this));
+
+        getOtherSources(this.props.user_id, function(result) {
+            this.setState({
+                otherSources: result
+            })
+        }.bind(this));
+
         this.props.fetchArticles()
     }
 

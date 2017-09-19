@@ -63,15 +63,18 @@ export class LoginModal extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        let result = attemptLogin(this.state.username, this.state.password);
-
-        if(result.auth) {
-            this.props.handleLogin(true, result.user_id)
-            this.toggle();
-        } else {
-            this.setState({error: result.error})
-            this.setState({username: "", password: ""});
-        }
+        attemptLogin(this.state.username, this.state.password, function(result) {
+            if(result.auth) {
+                this.props.handleLogin(true, result.user_id)
+                this.toggle();
+            } else {
+                this.setState({
+                    error: result.error,
+                    username: "",
+                    password: ""
+                })
+            }
+        }.bind(this));
     }
 
     showModal() {

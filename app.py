@@ -265,7 +265,6 @@ def createJsonResponse(articles):
 		articleDict = article.__dict__
 		articleDict.pop('_sa_instance_state')
 		articleDict.pop('id')
-		articleDict.pop('summary')
 		articleDict.pop('publish_date')
 		articleDict.pop('source_id')
 		articlesDict.append(articleDict)

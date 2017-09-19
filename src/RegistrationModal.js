@@ -63,14 +63,14 @@ export class RegistrationModal extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        let result = attemptRegistration(this.state.username, this.state.password, this.state.password2);
-
-        if(result.success) {
-            this.toggle();
-        } else {
-            this.setState({error: result.error})
-            this.setState({username: "", password: "", password2: ""});
-        }
+        attemptRegistration(this.state.username, this.state.password, this.state.password2, function(result) {
+            if(result.success) {
+                this.toggle();
+            } else {
+                this.setState({error: result.error})
+                this.setState({username: "", password: "", password2: ""});
+            }
+        }.bind(this));        
     }
 
     showModal() {

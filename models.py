@@ -18,16 +18,14 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     title = db.Column(db.Text, nullable=False)
     url = db.Column(db.Text, nullable=False)
-    summary = db.Column(db.Text, nullable=False)
     image_link = db.Column(db.Text, nullable=False)
     logo_link = db.Column(db.Text, nullable=False)
     publish_date = db.Column(db.DateTime, nullable=False)
     source_id = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, title, url, summary, image_link, logo_link, publish_date, source_id):
+    def __init__(self, title, url, image_link, logo_link, publish_date, source_id):
         self.title = title
         self.url = url
-        self.summary = summary
         self.image_link = image_link
         self.logo_link = logo_link
         self.publish_date = publish_date

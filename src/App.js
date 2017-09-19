@@ -26,27 +26,43 @@ class App extends Component {
     }
 
     fetchArticles() {
+        var props = {}
+        props.numberOfArticles = 20
+        props.currentIndex = 0
         if(this.state.user_id) {
-            this.setState({
-                articles: getArticles(this.state.user_id)
-            })
+            props.user_id = this.state.user_id
         } else {
-            this.setState({
-                articles: getArticles()
-            })
+            props.user_id = -1;
         }
+
+        getArticles( props, function(result) {
+            this.setState({
+                articles: result
+            });
+        }.bind(this));
     }
 
     searchArticles(query) {
-        console.log("Searching - Query: " + query)
-        this.setState({
-            articles: search(query, this.state.user_id)
-        })
+        var props = {}
+        props.numberOfArticles = 20
+        props.currentIndex = 0
+        if(this.state.user_id) {
+            props.user_id = this.state.user_id
+        } else {
+            props.user_id = -1;
+        }
+        props.query = query;
+        
+        search(props, function(result) {
+            this.setState({
+                articles: result
+            })
+        }.bind(this));
     }
 
     handleLogin(auth, user_id) {
         this.setState({auth: auth, user_id: user_id});
-        this.fetchArticles()
+        this.fetchArticles();
     }
 
     handleLogout() {

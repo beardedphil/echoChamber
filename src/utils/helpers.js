@@ -1,8 +1,8 @@
 import $ from 'jquery';
 
-export function getUserSources(user_id) {
+export function getUserSources(user_id, callback) {
     var result = [];
-	$.ajaxSetup( { "async": false } );
+
 	$.ajax(
 	{
 		type: 'POST',
@@ -14,15 +14,13 @@ export function getUserSources(user_id) {
 			for(var i = 0, len = data.length; i < len; i++) {
 				result.push(data[i]);
 			}
+            callback(result);
 		}
 	});
-	$.ajaxSetup( { "async": true } );
-	return result;
 }
 
-export function getOtherSources(user_id) {
+export function getOtherSources(user_id, callback) {
     var result = [];
-	$.ajaxSetup( { "async": false } );
 	$.ajax(
 	{
 		type: 'POST',
@@ -34,36 +32,38 @@ export function getOtherSources(user_id) {
 			for(var i = 0, len = data.length; i < len; i++) {
 				result.push(data[i]);
 			}
+            callback(result);
 		}
 	});
-	$.ajaxSetup( { "async": true } );
-	return result;
 }
 
-export function getArticles(user_id, currentIndex=0, numberOfArticles=20) {
+export function getArticles(props, callback) {
     var result = [];
-    $.ajaxSetup( { "async": false } );
+    var data = {};
+
+    if (props.user_id !== -1) {
+        data = {
+            user_id: props.user_id
+        }
+    }
+
 	$.ajax(
 	{
 		type: 'POST',
 		url: 'http://localhost:8000/articles',
-		data: {
-			user_id: user_id
-		},
+		data: data,
 		success: function(data)
 		{
-			for(var i = currentIndex, len = data.length, lastArticle = currentIndex + numberOfArticles; i < len && i < lastArticle; i++) {
+			for(var i = props.currentIndex, len = data.length, lastArticle = props.currentIndex + props.numberOfArticles; i < len && i < lastArticle; i++) {
 	            result.push(data[i]);
 	        }
+            callback(result);
 		}
 	});
-	$.ajaxSetup( { "async": true } );
-	return result;
+
 }
 
-export function attemptLogin(username, password) {
-	let result = []
-	$.ajaxSetup( { "async": false } );
+export function attemptLogin(username, password, callback) {
 	$.ajax(
 	{
 	    type: 'POST',
@@ -74,16 +74,12 @@ export function attemptLogin(username, password) {
 		},
 	    success: function(data)
 	    {
-			result = data;
+			callback(data)
 	    }
 	});
-	$.ajaxSetup( { "async": true } );
-	return result
 }
 
-export function attemptRegistration(username, password, password2) {
-	let result = []
-	$.ajaxSetup( { "async": false } );
+export function attemptRegistration(username, password, password2, callback) {
 	$.ajax(
 	{
 		type: 'POST',
@@ -95,16 +91,12 @@ export function attemptRegistration(username, password, password2) {
 		},
 		success: function(data)
 		{
-			result = data;
+			callback(data)
 		}
 	});
-	$.ajaxSetup( { "async": true } );
-	return result
 }
 
-export function switchTrust(sourceId, user_id, trust) {
-	let result = []
-	$.ajaxSetup( { "async": false } );
+export function switchTrust(sourceId, user_id, trust, callback) {
 	$.ajax(
 	{
 		type: 'POST',
@@ -116,31 +108,28 @@ export function switchTrust(sourceId, user_id, trust) {
 		},
 		success: function(data)
 		{
-			result = data;
+			callback(data);
 		}
 	});
-	$.ajaxSetup( { "async": true } );
-	return result
 }
 
-export function search(query, user_id, currentIndex=0, numberOfArticles=20) {
+export function search(props, callback) {
     let result = []
-    $.ajaxSetup( { "async": false } );
+    let data = {
+        query: props.query,
+        user_id: props.user_id
+    }
     $.ajax(
     {
         type: 'POST',
         url: 'http://localhost:8000/search',
-        data: {
-            query: query,
-            user_id: user_id
-        },
+        data: data,
         success: function(data)
         {
-            for(var i = currentIndex, len = data.length, lastArticle = currentIndex + numberOfArticles; i < len && i < lastArticle; i++) {
+            for(var i = props.currentIndex, len = data.length, lastArticle = props.currentIndex + props.numberOfArticles; i < len && i < lastArticle; i++) {
 	            result.push(data[i]);
 	        }
+            callback(result)
         }
     });
-    $.ajaxSetup( { "async": true } );
-    return result
 }
