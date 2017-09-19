@@ -18,23 +18,10 @@ Session(app)
 @app.route("/articles", methods=["POST"])
 @crossdomain(origin='*')
 def articles():
-	try:
-		if not request.form.get('user_id') or request.form.get('user_id') == '':
-			user_id = null
-		sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
-		source_ids = []
-
-		for source in sources:
-			source_info = Source.query.filter(Source.id == source.source_id).first()
-			source_ids.append(source_info.id)
-			thread = threading.Thread(target=threaded_get_articles, args=(source_info.source, source_info.id))
-			# thread.start()
-
-		articles = Article.query.filter(Article.source_id.in_(source_ids))
-
-	except:
-		# Should eventually be getTopStories()
+	if not request.form.get('user_id'):
 		articles = Article.query.all()
+	else:
+		articles = getUserArticles(request.form.get('user_id'))
 
 	return createJsonResponse(articles)
 
@@ -172,91 +159,113 @@ def register():
 @app.route("/search", methods=["POST"])
 @crossdomain(origin='*')
 def search():
-
 	# The following search and sort is based on the idea that matching all words
 	# would be best, but when all words aren't matched, the earlier a word
 	# appears in the query, the valuable matching that word should be.
-
 	query = request.form.get('query')
-
-	if query == "":
-		matchingArticles = Article.query.all()
-		return createJsonResponse(matchingArticles)
-
+	if not request.form.get('user_id'):
+		if query == "":
+			matchingArticles = Article.query.all()
+		else:
+			matchingArticles = searchNoUser(query)
 	else:
-		# break query string into keywords (lowercase, no punctuation)
-		queryWords = query.split()
-		strippedWords = []
-		for word in queryWords:
-			strippedWords.append((re.sub("[^a-zA-Z]+", "", word).lower()))
+		if query == "":
+			matchingArticles = getUserArticles(request.form.get('user_id'))
+		else:
+			matchingArticles = searchWithUser(query, request.form.get('user_id'))
 
-		# get ids for each keyword
-		keywordIds = []
-		for word in strippedWords:
-			keywordRow = Keyword.query.filter(Keyword.keyword == word).first()
-			if keywordRow:
-				keywordId = keywordRow.id
-				keywordIds.append(keywordId)
+	return createJsonResponse(matchingArticles)
 
-		# for the last word, grab the first matching keyword from the db
-		# this should be updated to choose all matching keywords
-		lastWord = strippedWords[-1] + '%'
-		keywordRow = Keyword.query.filter(Keyword.keyword.like(lastWord)).first()
+def searchNoUser(query):
+	matchingArticleIds = getMatchingArticleIds(query)
+	matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).all()
+
+	return matchingArticles
+
+def searchWithUser(query, user_id):
+	matchingArticleIds = getMatchingArticleIds(query)
+	sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
+	source_ids = []
+
+	for source in sources:
+		source_info = Source.query.filter(Source.id == source.source_id).first()
+		source_ids.append(source_info.id)
+
+	matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).filter(Article.source_id.in_(source_ids)).all()
+
+	return matchingArticles
+
+def getMatchingArticleIds(query):
+	matchingArticleIds = []
+
+	# break query string into keywords (lowercase, no punctuation)
+	queryWords = query.split()
+	strippedWords = []
+	for word in queryWords:
+		strippedWords.append((re.sub("[^a-zA-Z]+", "", word).lower()))
+
+	# get ids for each keyword
+	keywordIds = []
+	for word in strippedWords:
+		keywordRow = Keyword.query.filter(Keyword.keyword == word).first()
 		if keywordRow:
 			keywordId = keywordRow.id
 			keywordIds.append(keywordId)
 
-		if not keywordIds:
-			matchingArticles = Article.query.all()
-			return createJsonResponse(matchingArticles)
+	# for the last word, grab 10 possible matching keywords from the db
+	lastWord = strippedWords[-1] + '%'
+	keywordRows = Keyword.query.filter(Keyword.keyword.like(lastWord)).limit(10)
+	if keywordRows:
+		for keywordRow in keywordRows:
+			keywordId = keywordRow.id
+			keywordIds.append(keywordId)
 
-		else:
-			# query database for a list of all articles associated with each keyword
-			articleLists = []
+	if not keywordIds:
+		matchingArticleIds = []
+	else:
+		# query database for a list of all articles associated with each keyword
+		articleLists = []
 
-			for index, k_id in enumerate(keywordIds):
-				article_ids = []
-				articles = ArticleKeyword.query.filter(ArticleKeyword.keyword_id == k_id).all()
-				for article in articles:
-					article_ids.append(article.article_id)
-				articleLists.append(article_ids)
+		for index, k_id in enumerate(keywordIds):
+			article_ids = []
+			articles = ArticleKeyword.query.filter(ArticleKeyword.keyword_id == k_id).all()
+			for article in articles:
+				article_ids.append(article.article_id)
+			articleLists.append(article_ids)
 
-			# create an index for each word in the search query, then
-			# build a list of lists of all possible orderings of those indices.
-			indices = []
-			for i in range(len(keywordIds)):
-				indices.append(i)
+		# create an index for each word in the search query, then
+		# build a list of lists of all possible orderings of those indices.
+		indices = []
+		for i in range(len(keywordIds)):
+			indices.append(i)
 
-			indicesCombos = []
-			for i in indices:
-				indicesCombos += itertools.combinations(indices, i + 1)
+		indicesCombos = []
+		for i in indices:
+			indicesCombos += itertools.combinations(indices, i + 1)
 
-			indicesComboList = [ list(t) for t in indicesCombos ]
-			indicesComboList.sort(key=len, reverse=True)
+		indicesComboList = [ list(t) for t in indicesCombos ]
+		indicesComboList.sort(key=len, reverse=True)
 
-			matchingArticleIds = []
-			for combo in indicesComboList:
-				sets = []
-				for i in combo:
-					sets.append(set(articleLists[i]))
+		for combo in indicesComboList:
+			sets = []
+			for i in combo:
+				sets.append(set(articleLists[i]))
 
-				intersection = set.intersection(*sets)
-				if intersection:
-					matchingArticleIds.extend(intersection)
+			intersection = set.intersection(*sets)
+			if intersection:
+				matchingArticleIds.extend(intersection)
 
-			if request.form.get('user_id'):
-				sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
-				source_ids = []
+	return matchingArticleIds
 
-				for source in sources:
-					source_info = Source.query.filter(Source.id == source.source_id).first()
-					source_ids.append(source_info.id)
+def getUserArticles(user_id):
+	sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
+	source_ids = []
 
-				matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).filter(Article.source_id.in_(source_ids)).all()
-			else:
-				matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).all()
+	for source in sources:
+		source_info = Source.query.filter(Source.id == source.source_id).first()
+		source_ids.append(source_info.id)
 
-	return createJsonResponse(matchingArticles)
+	return Article.query.filter(Article.source_id.in_(source_ids))
 
 def createJsonResponse(articles):
 	articlesDict = []

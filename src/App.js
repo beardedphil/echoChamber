@@ -48,11 +48,9 @@ class App extends Component {
         props.currentIndex = 0
         if(this.state.user_id) {
             props.user_id = this.state.user_id
-        } else {
-            props.user_id = -1;
         }
         props.query = query;
-        
+
         search(props, function(result) {
             this.setState({
                 articles: result
@@ -61,13 +59,16 @@ class App extends Component {
     }
 
     handleLogin(auth, user_id) {
-        this.setState({auth: auth, user_id: user_id});
-        this.fetchArticles();
+        this.setState({auth: auth, user_id: user_id}, function() {
+            this.fetchArticles();
+        }.bind(this));
     }
 
     handleLogout() {
-        this.setState({auth: false, user_id: ""});
-        this.fetchArticles()
+        this.setState({auth: false, user_id: ""}, function() {
+            console.log(this.state.user_id)
+            this.fetchArticles();
+        }.bind(this));
     }
 
     render() {

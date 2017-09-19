@@ -1,12 +1,13 @@
 import $ from 'jquery';
 
+let host = (window.location.hostname === 'localhost') ? ('http://localhost:8000/') : ('/api/')
+
 export function getUserSources(user_id, callback) {
     var result = [];
-
 	$.ajax(
 	{
 		type: 'POST',
-		url: 'http://localhost:8000/user_sources',
+		url: host + 'user_sources',
 		data: {
 			user_id: user_id
 		},
@@ -24,7 +25,7 @@ export function getOtherSources(user_id, callback) {
 	$.ajax(
 	{
 		type: 'POST',
-		url: 'http://localhost:8000/other_sources',
+		url: host + 'other_sources',
 		data: {
 			user_id: user_id
 		},
@@ -50,7 +51,7 @@ export function getArticles(props, callback) {
 	$.ajax(
 	{
 		type: 'POST',
-		url: 'http://localhost:8000/articles',
+		url: host + 'articles',
 		data: data,
 		success: function(data)
 		{
@@ -67,7 +68,7 @@ export function attemptLogin(username, password, callback) {
 	$.ajax(
 	{
 	    type: 'POST',
-	    url: 'http://localhost:8000/login',
+	    url: host + 'login',
 	    data: {
 			username: username,
 			password: password
@@ -83,7 +84,7 @@ export function attemptRegistration(username, password, password2, callback) {
 	$.ajax(
 	{
 		type: 'POST',
-		url: 'http://localhost:8000/register',
+		url: host + 'register',
 		data: {
 			username: username,
 			password: password,
@@ -100,7 +101,7 @@ export function switchTrust(sourceId, user_id, trust, callback) {
 	$.ajax(
 	{
 		type: 'POST',
-		url: 'http://localhost:8000/switch_trust',
+		url: host + 'switch_trust',
 		data: {
 			source_id: sourceId,
 			user_id: user_id,
@@ -115,14 +116,16 @@ export function switchTrust(sourceId, user_id, trust, callback) {
 
 export function search(props, callback) {
     let result = []
-    let data = {
-        query: props.query,
-        user_id: props.user_id
+    let data = {}
+    data.query = props.query
+    if (props.user_id) {
+        data.user_id = props.user_id
     }
+
     $.ajax(
     {
         type: 'POST',
-        url: 'http://localhost:8000/search',
+        url: host + 'search',
         data: data,
         success: function(data)
         {
