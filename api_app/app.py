@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 if environment == 'dev':
 	app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../echo.db'
 else:
-	app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://db_user:db_password@localhost/articles_mts'
+	app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://db_user:' + db_password + '@localhost/articles_mts'
 
 app.config['SQLALCHEMY_ECHO'] = True
 db.init_app(app)
@@ -27,7 +27,7 @@ Session(app)
 @crossdomain(origin='*')
 def articles():
 	if not request.form.get('user_id'):
-		articles = Article.query.limit(20)
+		articles = Article.query.limit(30)
 	else:
 		articles = getUserArticles(request.form.get('user_id'))
 
@@ -173,7 +173,7 @@ def search():
 	query = request.form.get('query')
 	if not request.form.get('user_id'):
 		if query == "":
-			matchingArticles = Article.query.limit(20)
+			matchingArticles = Article.query.limit(30)
 		else:
 			matchingArticles = searchNoUser(query)
 	else:
@@ -186,7 +186,7 @@ def search():
 
 def searchNoUser(query):
 	matchingArticleIds = getMatchingArticleIds(query)
-	matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).limit(20)
+	matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).limit(30)
 
 	return matchingArticles
 
@@ -199,7 +199,7 @@ def searchWithUser(query, user_id):
 		source_info = Source.query.filter(Source.id == source.source_id).first()
 		source_ids.append(source_info.id)
 
-	matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).filter(Article.source_id.in_(source_ids)).limit(20).all()
+	matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).filter(Article.source_id.in_(source_ids)).limit(30)
 
 	return matchingArticles
 
@@ -236,7 +236,7 @@ def getMatchingArticleIds(query):
 
 		for index, k_id in enumerate(keywordIds):
 			article_ids = []
-			articles = ArticleKeyword.query.filter(ArticleKeyword.keyword_id == k_id).limit(20)
+			articles = ArticleKeyword.query.filter(ArticleKeyword.keyword_id == k_id).limit(30)
 			for article in articles:
 				article_ids.append(article.article_id)
 			articleLists.append(article_ids)
@@ -266,14 +266,14 @@ def getMatchingArticleIds(query):
 	return matchingArticleIds
 
 def getUserArticles(user_id):
-	sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).limit(20)
+	sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
 	source_ids = []
 
 	for source in sources:
 		source_info = Source.query.filter(Source.id == source.source_id).first()
 		source_ids.append(source_info.id)
 
-	return Article.query.filter(Article.source_id.in_(source_ids)).limit(20)
+	return Article.query.filter(Article.source_id.in_(source_ids)).limit(30)
 
 def createJsonResponse(articles):
 	articlesDict = []

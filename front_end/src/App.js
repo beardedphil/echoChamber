@@ -27,7 +27,7 @@ class App extends Component {
 
     fetchArticles() {
         var props = {}
-        props.numberOfArticles = 20
+        props.numberOfArticles = 30
         props.currentIndex = 0
         if(this.state.user_id) {
             props.user_id = this.state.user_id
@@ -44,7 +44,7 @@ class App extends Component {
 
     searchArticles(query) {
         var props = {}
-        props.numberOfArticles = 20
+        props.numberOfArticles = 30
         props.currentIndex = 0
         if(this.state.user_id) {
             props.user_id = this.state.user_id
