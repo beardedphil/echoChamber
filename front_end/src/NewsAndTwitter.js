@@ -10,7 +10,7 @@ export class NewsAndTwitter extends Component {
     render() {
         return(
             <div className="container" style={ mainContentDivStyles }>
-                <Articles articles={this.props.articles} />
+                <Articles articles={ this.props.articles } noMatchingArticles={ this.props.noMatchingArticles } />
             </div>
         );
     }

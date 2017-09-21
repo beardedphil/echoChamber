@@ -59,7 +59,11 @@ export class Articles extends Component {
 
         return(
             <div>
-                { rows }
+                { this.props.noMatchingArticles ? (
+                    <p>No articles match your filter</p>
+                ) : (
+                    <div>{ rows }</div>
+                )}
             </div>
         );
     }

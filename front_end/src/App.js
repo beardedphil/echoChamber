@@ -12,7 +12,8 @@ class App extends Component {
         this.state = {
             auth: false,
             user_id: "",
-            articles: []
+            articles: [],
+            noMatchingArticles: false
         };
 
         this.fetchArticles = this.fetchArticles.bind(this);
@@ -52,9 +53,17 @@ class App extends Component {
         props.query = query;
 
         search(props, function(result) {
-            this.setState({
-                articles: result
-            })
+            if (result.length > 0) {
+                this.setState({
+                    articles: result,
+                    noMatchingArticles: false
+                });
+            } else {
+                this.setState({
+                    articles: [],
+                    noMatchingArticles: true
+                })
+            }
         }.bind(this));
     }
 
@@ -70,7 +79,7 @@ class App extends Component {
         return(
             <div>
                 <Navigation searchArticles={ this.searchArticles } fetchArticles={ this.fetchArticles } handleLogin={ this.handleLogin } handleLogout= { this.handleLogout } isLoggedIn={ this.state.auth } user_id={ this.state.user_id } />
-                <NewsAndTwitter user_id={ this.state.user_id } isLoggedIn={ this.state.auth } articles={ this.state.articles }/>
+                <NewsAndTwitter user_id={ this.state.user_id } isLoggedIn={ this.state.auth } articles={ this.state.articles } noMatchingArticles={ this.state.noMatchingArticles }/>
             </div>
         );
     }
