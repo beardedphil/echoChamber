@@ -186,22 +186,29 @@ def search():
 
 def searchNoUser(query):
 	matchingArticleIds = getMatchingArticleIds(query)
-	matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).limit(30)
+	if matchingArticleIds:
+		matchingArticleIds = matchingArticleIds[:30]
+		matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).all()
+	else:
+		return []
 
 	return matchingArticles
 
 def searchWithUser(query, user_id):
 	matchingArticleIds = getMatchingArticleIds(query)
-	sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
-	source_ids = []
+	if matchingArticleIds:
+		sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
+		source_ids = []
 
-	for source in sources:
-		source_info = Source.query.filter(Source.id == source.source_id).first()
-		source_ids.append(source_info.id)
+		for source in sources:
+			source_info = Source.query.filter(Source.id == source.source_id).first()
+			source_ids.append(source_info.id)
 
-	matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).filter(Article.source_id.in_(source_ids)).limit(30)
-
-	return matchingArticles
+		matchingArticleIds = matchingArticleIds[:30]
+		matchingArticles = Article.query.filter(Article.id.in_(matchingArticleIds)).filter(Article.source_id.in_(source_ids)).limit(30)
+		return matchingArticles
+	else:
+		return []
 
 def getMatchingArticleIds(query):
 	matchingArticleIds = []
@@ -212,58 +219,104 @@ def getMatchingArticleIds(query):
 	for word in queryWords:
 		strippedWords.append((re.sub("[^a-zA-Z]+", "", word).lower()))
 
+	# if the query ends in a space, the user is not in the middle of typing a word
+	# otherwise, we assume that the user may not be finished with the current word
+	if query[-1] == ' ':
+		wordInProgress = ""
+	else:
+		wordInProgress = strippedWords[-1]
+		possibleWordInProgress = wordInProgress + '%'
+		strippedWords = strippedWords[:-1]
+
 	# get ids for each keyword
 	keywordIds = []
 	for word in strippedWords:
 		keywordRow = Keyword.query.filter(Keyword.keyword == word).first()
+		# if the keyword is in the database, add the id to the list and proceed
 		if keywordRow:
 			keywordId = keywordRow.id
 			keywordIds.append(keywordId)
+		# if any keyword isn't found, the filter should return no articles
+		else:
+			return []
 
-	# for the last word, grab 10 possible matching keywords from the db
-	lastWord = strippedWords[-1] + '%'
-	keywordRows = Keyword.query.filter(Keyword.keyword.like(lastWord)).limit(10)
-	if keywordRows:
-		for keywordRow in keywordRows:
-			keywordId = keywordRow.id
-			keywordIds.append(keywordId)
+	# if there is a word in progress and it is at least two letters long,
+	# grab all possible matching keywords from the db
+	possibleKeywordIds = []
 
-	if not keywordIds:
-		matchingArticleIds = []
+	if len(wordInProgress) > 1:
+		wipRow = Keyword.query.filter(Keyword.keyword == wordInProgress).first()
+		pWipRows = Keyword.query.filter(Keyword.keyword.like(possibleWordInProgress)).all()
+
+		if wipRow:
+			possibleKeywordIds.append(wipRow.id)
+
+		if pWipRows:
+			for pWipRow in pWipRows:
+				pWipId = pWipRow.id
+				possibleKeywordIds.append(pWipId)
+		else:
+			return []
+
+	if not keywordIds and not possibleKeywordIds:
+		return []
 	else:
 		# query database for a list of all articles associated with each keyword
-		articleLists = []
+		# except for the word in progress
 
-		for index, k_id in enumerate(keywordIds):
+		for k_id in keywordIds:
 			article_ids = []
-			articles = ArticleKeyword.query.filter(ArticleKeyword.keyword_id == k_id).limit(30)
-			for article in articles:
-				article_ids.append(article.article_id)
-			articleLists.append(article_ids)
+			articleKeywordRows = ArticleKeyword.query.filter(ArticleKeyword.keyword_id == k_id).all()
 
-		# create an index for each word in the search query, then
-		# build a list of lists of all possible orderings of those indices.
-		indices = []
-		for i in range(len(keywordIds)):
-			indices.append(i)
+			# If there are no articles matching a keyword, then the filter should return no articles
+			if not articleKeywordRows:
+				return []
 
-		indicesCombos = []
-		for i in indices:
-			indicesCombos += itertools.combinations(indices, i + 1)
+			for row in articleKeywordRows:
+				article_ids.append(row.article_id)
 
-		indicesComboList = [ list(t) for t in indicesCombos ]
-		indicesComboList.sort(key=len, reverse=True)
+			# Case - First keyword
+			if matchingArticleIds == []:
+				matchingArticleIds = article_ids
+			else:
+				sets = []
+				sets.append(set(matchingArticleIds))
+				sets.append(set(article_ids))
+				intersection = set.intersection(*sets)
+				if intersection:
+					matchingArticleIds = []
+					matchingArticleIds.extend(intersection)
+				else:
+					return []
 
-		for combo in indicesComboList:
-			sets = []
-			for i in combo:
-				sets.append(set(articleLists[i]))
+	# word in progress should only eliminate results that are no longer possible
+	possibleMatchingArticleIds = []
 
-			intersection = set.intersection(*sets)
-			if intersection:
-				matchingArticleIds.extend(intersection)
+	for pk_id in possibleKeywordIds:
+		articleKeywordRows = ArticleKeyword.query.filter(ArticleKeyword.keyword_id == pk_id).all()
 
-	return matchingArticleIds
+		# If there are no articles matching a keyword, then the keyword should be skipped
+		if not articleKeywordRows:
+			continue
+
+		for row in articleKeywordRows:
+			possibleMatchingArticleIds.append(row.article_id)
+
+	if matchingArticleIds == []:
+		return possibleMatchingArticleIds
+	elif possibleMatchingArticleIds == []:
+		return matchingArticleIds
+	else:
+		sets = []
+		sets.append(set(possibleMatchingArticleIds))
+		sets.append(set(matchingArticleIds))
+		intersection = set.intersection(*sets)
+		if intersection:
+			matchingArticleIds = []
+			matchingArticleIds.extend(intersection)
+			return matchingArticleIds
+		else:
+			return []
 
 def getUserArticles(user_id):
 	sources = UserSource.query.filter(UserSource.user_id == request.form.get('user_id')).all()
@@ -287,7 +340,6 @@ def createJsonResponse(articles):
 		articlesDict.append(articleDict)
 
 	return jsonify(articlesDict)
-
 
 if __name__ == '__main__':
 	app.run()

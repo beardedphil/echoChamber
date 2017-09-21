@@ -44,27 +44,30 @@ class App extends Component {
     }
 
     searchArticles(query) {
-        var props = {}
-        props.numberOfArticles = 30
-        props.currentIndex = 0
-        if(this.state.user_id) {
-            props.user_id = this.state.user_id
-        }
-        props.query = query;
-
-        search(props, function(result) {
-            if (result.length > 0) {
-                this.setState({
-                    articles: result,
-                    noMatchingArticles: false
-                });
-            } else {
-                this.setState({
-                    articles: [],
-                    noMatchingArticles: true
-                })
+        if (query.length > 2) {
+            var props = {}
+            props.numberOfArticles = 30
+            props.currentIndex = 0
+            if(this.state.user_id) {
+                props.user_id = this.state.user_id
             }
-        }.bind(this));
+            props.query = query;
+
+            search(props, function(result) {
+                if (result.length > 0) {
+                    this.setState({
+                        articles: result,
+                        noMatchingArticles: false
+                    });
+                } else {
+                    this.setState({
+                        articles: [],
+                        noMatchingArticles: true
+                    })
+                }
+            }.bind(this));
+        }
+
     }
 
     handleLogin(auth, user_id) {

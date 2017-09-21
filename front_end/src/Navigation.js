@@ -36,10 +36,6 @@ export class Navigation extends Component {
 		});
 	}
 
-	handleSearch() {
-		console.log('search')
-	}
-
 	render() {
 		return (
 			<div>
