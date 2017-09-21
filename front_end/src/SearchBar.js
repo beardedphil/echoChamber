@@ -3,8 +3,7 @@ import {
 	Navbar,
 	Nav,
 	Input,
-	InputGroup,
-	InputGroupButton
+	InputGroup
 } from 'reactstrap';
 
 const searchNavStyles = {
@@ -14,7 +13,7 @@ const searchNavStyles = {
 const searchBarStyles = {
 	float: 'none',
 	margin: '0 auto',
-	width: '30%'
+	width: '20em'
 }
 
 export class SearchBar extends Component {
@@ -45,7 +44,6 @@ export class SearchBar extends Component {
                 <Nav style={searchNavStyles}>
                     <InputGroup style={searchBarStyles}>
                         <Input value={this.state.query} onChange={ this.handleQueryChange } />
-                        <InputGroupButton onClick={ this.handleSearch }>Search</InputGroupButton>
                     </InputGroup>
                 </Nav>
             </Navbar>
