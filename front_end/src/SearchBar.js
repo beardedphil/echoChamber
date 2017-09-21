@@ -43,7 +43,7 @@ export class SearchBar extends Component {
             <Navbar color="faded" light toggleable>
                 <Nav style={searchNavStyles}>
                     <InputGroup style={searchBarStyles}>
-                        <Input value={this.state.query} onChange={ this.handleQueryChange } placeholder="Filter by keyword(s)"/>
+                        <Input value={this.state.query} onChange={ this.handleQueryChange } placeholder="Filter articles by keyword(s)"/>
                     </InputGroup>
                 </Nav>
             </Navbar>
