@@ -59,16 +59,11 @@ class App extends Component {
     }
 
     handleLogin(auth, user_id) {
-        this.setState({auth: auth, user_id: user_id}, function() {
-            this.fetchArticles();
-        }.bind(this));
+        this.setState({auth: auth, user_id: user_id}, this.fetchArticles);
     }
 
     handleLogout() {
-        this.setState({auth: false, user_id: ""}, function() {
-            console.log(this.state.user_id)
-            this.fetchArticles();
-        }.bind(this));
+        this.setState({auth: false, user_id: ""}, this.fetchArticles);
     }
 
     render() {

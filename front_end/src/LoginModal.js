@@ -49,8 +49,7 @@ export class LoginModal extends Component {
             password: "",
             error: "",
             modal: !this.state.modal
-        });
-        this.props.fetchArticles();
+        }, this.props.fetchArticles);
     }
 
     handleUsernameChange(e) {
