@@ -45,7 +45,7 @@ const articleImageStyles = {
 export class Articles extends Component {
     render() {
         let row = [];
-        let rowLength = 2;
+        let rowLength = 3;
         let rows = [];
         let numArticles = this.props.articles.length;
 
